@@ -1,7 +1,9 @@
 import ast 
+import colorsys
 import glob
 import sys
-from pathlib import Path
+import sys
+from pathlib import Path 
 
 py_files = glob.glob('./cpython/**/*.py', recursive=True)
 py_files = [x for x in py_files if "test" not in  x] 
@@ -74,20 +76,72 @@ def dyinpsect() :
 
 def dyrefine(untypedAPI,unit_test_set) : 
     pass
+def findTypeAPI(test=None) :  
+    testPath =  "./cpython/Lib/test/test_colorsys.py"  
+    tracerCode = open("tracer.py",'r').read()
+    code =  open(testPath,'r').read()
+    code  =  tracerCode+"\n" + code + "\nsys.settrace(None)"
+
+    tracerCode = open("tracer.py").read()
+    testCode = open(testPath).read()
+
+    current_namespace = globals()
+
+    exec(tracerCode, current_namespace, current_namespace)
+    try:
+        exec(testCode, current_namespace, current_namespace)
+    except SystemExit:
+        pass
+    finally:
+        sys.settrace(None)
+
+
+
+
+    colorsys_functions = {
+        api["name"]
+        for api in result["functions"]
+    }
+
+
+    inputs = current_namespace["input_types"]
+    outputs = current_namespace["output_types"]
+
+    colorsys_inputs = {
+        function: dict(parameters)
+        for function, parameters in inputs.items()
+        if function in colorsys_functions
+    }
+
+
+    colorsys_outputs = {
+        function: types
+        for function, types in outputs.items()
+        if function in colorsys_functions
+    }
+
+
+    return colorsys_inputs, colorsys_outputs
 
 
 def phase1(code) : 
+
     # Static extraction  
     res = None 
     tree = ast.parse(code)
 
-
     loop(tree)
     print(len(py_files))
+    print(result['functions'])
+
     # Dynamic refinement to convert from untyped into type
     # we use test file of that features to find the type of input and output
-    testPath =  "./cpython/Lib/test/test_colorsys.py"
+    #  Run this file with powerful of python tracer to get the type 
 
+    inputType,outputType = findTypeAPI()
+
+    print(f"inputType  :  {inputType}")
+    print(f"outputType  :  {outputType}")
 
     # Typed API description
 
@@ -131,6 +185,4 @@ code = open(filePath,'r').read()
 
 
 #print(code)
-
-res = phase1(code)
-print(res)
+phase1(code)
