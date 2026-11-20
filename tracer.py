@@ -1,6 +1,7 @@
 import inspect
 import sys
 from collections import defaultdict
+from pathlib import Path
 
 
 input_types = defaultdict(lambda: defaultdict(set))
@@ -8,7 +9,13 @@ output_types = defaultdict(set)
 
 
 def tracer(frame, event, arg):
-    function = frame.f_code.co_name
+    api_id = (
+        str(Path(frame.f_code.co_filename).resolve()),
+        getattr(frame.f_code, "co_qualname", frame.f_code.co_name),
+    )
+
+    if api_id[0] != TRACE_TARGET_FILE:
+        return tracer
 
     if event == "call":
         arg_info = inspect.getargvalues(frame)
@@ -18,12 +25,12 @@ def tracer(frame, event, arg):
                 continue
 
             value = arg_info.locals[parameter]
-            input_types[function][parameter].add(
+            input_types[api_id][parameter].add(
                 type(value).__name__
             )
 
     elif event == "return":
-        output_types[function].add(
+        output_types[api_id].add(
             type(arg).__name__
         )
 

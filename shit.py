@@ -1,7 +1,6 @@
 import ast 
-import colorsys
 import glob
-import sys
+import importlib.util
 import sys
 from pathlib import Path 
 
@@ -16,7 +15,7 @@ result =  {
     "classes" : []
 }  
 
-def loop(node,current_class=None,current_function=None) : 
+def loop(node,current_class=None,current_function=None,filePath=None) : 
  
     if  isinstance(node,ast.ClassDef) : 
         if current_function is not None  : 
@@ -34,8 +33,20 @@ def loop(node,current_class=None,current_function=None) :
         if current_function is not None : 
 
             return
+        #  Make an id for function name
+
+        if current_class:
+            qualname = f"{current_class['name']}.{node.name}"
+        else:
+            qualname = node.name
+
         current_function =  {
-            "name" : node.name, 
+            "name": node.name,
+            "qualname": qualname,
+            "api_id": (
+                filePath,
+                qualname
+            ),
             "params"  :[x.arg for x in (node.args.posonlyargs + node.args.args + node.args.kwonlyargs) if x.arg !="self"]     , 
             "defaults" : [ 
                 ast.unparse(x) for x in node.args.defaults
@@ -68,7 +79,7 @@ def loop(node,current_class=None,current_function=None) :
         result['imports'].append(node.module) 
 
     for child in ast.iter_child_nodes(node) : 
-        loop(child,current_class,current_function)
+        loop(child,current_class,current_function,filePath)
 
 
 def dyinpsect() : 
@@ -76,16 +87,19 @@ def dyinpsect() :
 
 def dyrefine(untypedAPI,unit_test_set) : 
     pass
-def findTypeAPI(test=None) :  
+def findTypeAPI(filePath, test=None) :  
     testPath =  "./cpython/Lib/test/test_colorsys.py"  
-    tracerCode = open("tracer.py",'r').read()
-    code =  open(testPath,'r').read()
-    code  =  tracerCode+"\n" + code + "\nsys.settrace(None)"
-
     tracerCode = open("tracer.py").read()
     testCode = open(testPath).read()
 
     current_namespace = globals()
+    current_namespace["TRACE_TARGET_FILE"] = str(Path(filePath).resolve())
+
+    module_name = Path(filePath).stem
+    spec = importlib.util.spec_from_file_location(module_name, filePath)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
 
     exec(tracerCode, current_namespace, current_namespace)
     try:
@@ -95,42 +109,21 @@ def findTypeAPI(test=None) :
     finally:
         sys.settrace(None)
 
-
-
-
-    colorsys_functions = {
-        api["name"]
-        for api in result["functions"]
-    }
-
-
     inputs = current_namespace["input_types"]
     outputs = current_namespace["output_types"]
-
-    colorsys_inputs = {
-        function: dict(parameters)
-        for function, parameters in inputs.items()
-        if function in colorsys_functions
-    }
+    return inputs, outputs
 
 
-    colorsys_outputs = {
-        function: types
-        for function, types in outputs.items()
-        if function in colorsys_functions
-    }
-
-
-    return colorsys_inputs, colorsys_outputs
-
-
-def phase1(code) : 
-
+def phase1(code,filePath) : 
+    code = open(filePath,'r').read()
+    result["imports"].clear()
+    result["functions"].clear()
+    result["classes"].clear()
     # Static extraction  
     res = None 
     tree = ast.parse(code)
 
-    loop(tree)
+    loop(tree,filePath= str(Path(filePath).resolve()))
     print(len(py_files))
     print(result['functions'])
 
@@ -138,18 +131,24 @@ def phase1(code) :
     # we use test file of that features to find the type of input and output
     #  Run this file with powerful of python tracer to get the type 
 
-    inputType,outputType = findTypeAPI()
+    inputType,outputType = findTypeAPI(filePath)
+
+    apis = result["functions"] + [
+        method
+        for cls in result["classes"]
+        for method in cls["methods"]
+    ]
+    for api in apis:
+        api["input_types"] = dict(inputType.get(api["api_id"], {}))
+        api["output_types"] = outputType.get(api["api_id"], set())
 
     print(f"inputType  :  {inputType}")
     print(f"outputType  :  {outputType}")
 
     # Typed API description
+    print(result)
 
     return result
-
-
-    return res
-    pass
 
 def phase2() : 
     # L1 fuzzing
@@ -181,8 +180,7 @@ def greet(name="world"):
 
 filePath = "./cpython/Lib/colorsys.py"
 #testPath =  "./cpython/Lib/test/test_colorsys.py"
-code = open(filePath,'r').read()
 
 
 #print(code)
-phase1(code)
+phase1(code,filePath)
