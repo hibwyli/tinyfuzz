@@ -81,12 +81,6 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
     for child in ast.iter_child_nodes(node) : 
         loop(child,current_class,current_function,filePath)
 
-
-def dyinpsect() : 
-    pass
-
-def dyrefine(untypedAPI,unit_test_set) : 
-    pass
 def findTypeAPI(filePath, test=None) :  
     testPath =  "./cpython/Lib/test/test_colorsys.py"  
     tracerCode = open("tracer.py").read()
@@ -125,8 +119,6 @@ def phase1(code,filePath) :
 
     loop(tree,filePath= str(Path(filePath).resolve()))
     print(len(py_files))
-    print(result['functions'])
-
     # Dynamic refinement to convert from untyped into type
     # we use test file of that features to find the type of input and output
     #  Run this file with powerful of python tracer to get the type 
@@ -142,13 +134,8 @@ def phase1(code,filePath) :
         api["input_types"] = dict(inputType.get(api["api_id"], {}))
         api["output_types"] = outputType.get(api["api_id"], set())
 
-    print(f"inputType  :  {inputType}")
-    print(f"outputType  :  {outputType}")
-
     # Typed API description
-    print(result)
-
-    return result
+    return result 
 
 def phase2() : 
     # L1 fuzzing
@@ -183,4 +170,5 @@ filePath = "./cpython/Lib/colorsys.py"
 
 
 #print(code)
-phase1(code,filePath)
+apidesc =     phase1(code,filePath)
+print(apidesc)

@@ -14,6 +14,7 @@ def tracer(frame, event, arg):
         getattr(frame.f_code, "co_qualname", frame.f_code.co_name),
     )
 
+    # we get this through the namespace sharing
     if api_id[0] != TRACE_TARGET_FILE:
         return tracer
 
