@@ -1,14 +1,20 @@
 import ast 
+import string 
+import random
+import sys
 import json
 import glob
 import importlib.util
+from re import findall
 import sys
-from pathlib import Path 
+from pathlib import Path
+from types import resolve_bases 
 
 py_files = glob.glob('./cpython/**/*.py', recursive=True)
 py_files = [x for x in py_files if "test" not in  x] 
 print(len(py_files))
 # We parse shit with ast 
+all_apis = None
 
 result =  {
     "imports" :[] , 
@@ -83,7 +89,7 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
         loop(child,current_class,current_function,filePath)
 
 def findTypeAPI(filePath, test=None) :  
-    testPath =  "./cpython/Lib/test/test_xdrlib.py"  
+    testPath =  "./cpython/Lib/test/test_quopri.py"  
     tracerCode = open("tracer.py").read()
     testCode = open(testPath).read()
 
@@ -139,12 +145,14 @@ def phase1(code,filePath) :
     return result 
 
 def buildChains(apidesc) : 
+    global all_apis  
     data = None
-    try :  
-        with open("data.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except : 
-        pass
+    if   len(sys.argv) > 1 and sys.argv[1] == "CACHE"  : 
+        try :  
+            with open("data.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except : 
+            pass
 
     if data : 
         return data
@@ -156,6 +164,7 @@ def buildChains(apidesc) :
 }
 
     # L1 fuzzing
+
     # We find  the input match output between functions
 
     functions = list(apidesc["functions"])
@@ -175,9 +184,9 @@ def buildChains(apidesc) :
             outputs = output[1] if isinstance(output, tuple) else [output]
 
             for target in all_apis:
-                inputs = target["input_types"].values()
 
-                if all(out in inp for out, inp in zip(outputs, inputs)):
+                inputs = list(target["input_types"].values())
+                if len(outputs) == len(inputs) and all(out in inp for out, inp in zip(outputs, inputs)):
                     chains1.append({
                         "source": source["api_id"],
                         "target": target["api_id"],
@@ -270,15 +279,17 @@ def buildChains(apidesc) :
             constructors[cls["name"]] = init_method["api_id"]
 
     fuzz_input_types = {"bytes", "str", "IO", "BytesIO", "StringIO", "ANY"}
-    entrypoints = []
+    fuzz_points = []
     for api in all_apis:
-        observed_input_types = {
-            input_type
-            for types in api["input_types"].values()
-            for input_type in types
-        }
-        if observed_input_types & fuzz_input_types:
-            entrypoints.append(api)
+        for arg_index, arg_name in enumerate(api["params"]):
+            for input_type in api["input_types"].get(arg_name, set()):
+                if input_type in fuzz_input_types:
+                    fuzz_points.append({
+                        "api": api,
+                        "arg_index": arg_index,
+                        "arg_name": arg_name,
+                        "input_type": input_type,
+                    })
 
     def edge_signature(case_number, link):
         return (
@@ -292,7 +303,8 @@ def buildChains(apidesc) :
 
     queue = []
     seen_chains = set()
-    for entrypoint in entrypoints:
+    for fuzz_point in fuzz_points:
+        entrypoint = fuzz_point["api"]
         parent_class = entrypoint.get("parent_class")
         constructor = constructors.get(parent_class)
 
@@ -316,11 +328,22 @@ def buildChains(apidesc) :
 
         signature = (
             tuple(apis),
+            fuzz_point["arg_index"],
+            fuzz_point["input_type"],
             tuple(edge_signature(case, link) for case, link in steps),
         )
         if signature not in seen_chains:
             seen_chains.add(signature)
-            queue.append({"apis": apis, "steps": steps})
+            queue.append({
+                "apis": apis,
+                "steps": steps,
+                "fuzz_point": {
+                    "api_id": entrypoint["api_id"],
+                    "arg_index": fuzz_point["arg_index"],
+                    "arg_name": fuzz_point["arg_name"],
+                    "input_type": fuzz_point["input_type"],
+                },
+            })
 
     max_chain_length = 5
     full_chains = list(queue)
@@ -342,6 +365,8 @@ def buildChains(apidesc) :
             new_steps = chain["steps"] + [(case_number, link)]
             signature = (
                 tuple(new_apis),
+                chain["fuzz_point"]["arg_index"],
+                chain["fuzz_point"]["input_type"],
                 tuple(
                     edge_signature(case, step_link)
                     for case, step_link in new_steps
@@ -351,23 +376,128 @@ def buildChains(apidesc) :
                 continue
 
             seen_chains.add(signature)
-            new_chain = {"apis": new_apis, "steps": new_steps}
+            new_chain = {
+                "apis": new_apis,
+                "steps": new_steps,
+                "fuzz_point": chain["fuzz_point"],
+            }
             full_chains.append(new_chain)
             queue.append(new_chain)
 
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(full_chains[:1000], f, indent=4)
-
     return full_chains
 
 
-def  arg_resolve(chains) : 
-    max_idx = max(range(len(chains)), key=lambda i: len(chains[i]["steps"]))
-    print(chains[max_idx])
+def  arg_resolve(args) : 
+    # What problem this solving ? 
 
     # remove dup
+    return []
 
-    pass
+def random_value(type_name):
+    if type_name == "bool":
+        return random.choice([True, False])
+
+    if type_name == "int":
+        return random.randint(-1000, 1000)
+
+    if type_name == "float":
+        return random.uniform(-1000, 1000)
+
+    if type_name == "str":
+        return "".join(
+            random.choices(string.printable, k=random.randint(0, 32))
+        )
+
+    if type_name == "bytes":
+        return random.randbytes(random.randint(0, 32))
+
+    if type_name == "NoneType":
+        return None
+
+    if type_name == "list":
+        return []
+
+    if type_name == "tuple":
+        return ()
+
+    if type_name == "dict":
+        return {}
+
+    if type_name == "set":
+        return set()
+
+    return None
+
+def  findEmtpyArgs(chains) : 
+    #for chain in chains : 
+        #if len(chain['steps']) == 3  : 
+        #    print(chains.index(chain))
+        #    exit()
+
+# We check this chain only , later will loop all
+    chain = chains[130] 
+    # Find fuzzing point first 
+    fuzzPoint = chain['fuzz_point']
+    apis = chain['apis'] 
+
+    print(f"{len(chain['steps'])} steps , fuzz point at  : { fuzzPoint}")
+    paramsPerStep = []
+    for api in apis : 
+        paramsPerStep.append([x for x in all_apis if x["api_id"] == tuple(api)][0]['params'])
+
+    unresolveArgs = []
+    for api, params in zip(apis, paramsPerStep):
+        for index, param in enumerate(params):
+            if (
+                tuple(api) == tuple(fuzzPoint["api_id"])
+                and index == fuzzPoint["arg_index"]
+            ):
+                continue
+
+            unresolveArgs.append({
+                "api_id": tuple(api),
+                "arg_index": index,
+                "arg_name": param,
+            })
+    print(f"Unsovled  args : {unresolveArgs}") 
+
+    # Resolve args here
+    for arg in unresolveArgs:
+        input_types = [x for x in all_apis if x["api_id"] == tuple(arg["api_id"])][0]["input_types"].get(arg["arg_name"], set())
+
+        
+        selected_type = random.choice(tuple(input_types))
+        
+
+        arg["input_type"] = selected_type
+        arg["value"] = random_value(selected_type)
+
+
+    chain["resolved_args"] = unresolveArgs
+
+
+
+
+    type = 0 
+
+    match type : 
+        case  1 : 
+            pass
+        case  2 : 
+            pass
+        case  3 : 
+            pass
+        case  4 : 
+            pass
+        case _  : 
+            pass
+
+
+
+
+
 
 
 def phase3() : 
@@ -393,13 +523,13 @@ def greet(name="world"):
     return "Hello " + name
 """ 
  
-filePath = "./cpython/Lib/xdrlib.py"
+filePath = "./cpython/Lib/quopri.py"
 #testPath =  "./cpython/Lib/test/test_colorsys.py"
 
 
 #print(code)
 apidesc =     phase1(code,filePath)
 full_chains = buildChains(apidesc)
-args = arg_resolve(full_chains) 
+args = findEmtpyArgs(full_chains) 
 
 
