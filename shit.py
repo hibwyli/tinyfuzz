@@ -362,40 +362,12 @@ def buildChains(apidesc) :
 
 
 def  arg_resolve(chains) : 
-    print_chain(chains[99])
+    max_idx = max(range(len(chains)), key=lambda i: len(chains[i]["steps"]))
+    print(chains[max_idx])
 
+    # remove dup
 
     pass
-
-def  print_chain(chain) : 
-    print(chain)
-    print("=============================================")
-    index = 0
-    step  = chain['steps'][0]
-    OBJ_NAME = "obj"
-    inclass = 0 
-    for step in chain['steps'] :  
-        
-        type  = step[0]
-        source = step[1]['source'][1]
-        #target = step[1]['target'][1]
-        if inclass : 
-            source =source.replace(source.split(".")[0],OBJ_NAME) 
-
-        print(type)  
-        # we have wrong type here , which type should be  ? 
-        match type : 
-            case 1 :  
-                print(f"{source}() -> " )
-            case 2 : 
-                print(f"{source}() -> "  )
-            case 3 : 
-                print(f"{source}() -> "  )
-            case 4 :
-                inclass = 1
-                print(f"{OBJ_NAME} = {step[1]['target'][1]} -> ")
-            case _   : 
-                print(f"WHO ARE YOU ? ")
 
 
 def phase3() : 
