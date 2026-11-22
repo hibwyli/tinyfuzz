@@ -8,6 +8,7 @@ input_types = defaultdict(lambda: defaultdict(set))
 output_types = defaultdict(set)
 
 
+
 def tracer(frame, event, arg):
     api_id = (
         str(Path(frame.f_code.co_filename).resolve()),
@@ -31,9 +32,12 @@ def tracer(frame, event, arg):
             )
 
     elif event == "return":
-        output_types[api_id].add(
-            type(arg).__name__
-        )
+        if isinstance(arg, tuple):
+            output_types[api_id].add(
+                ("tuple", tuple(type(item).__name__ for item in arg))
+            )
+        else:
+            output_types[api_id].add(type(arg).__name__)
 
     return tracer
 

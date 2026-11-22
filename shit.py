@@ -82,7 +82,7 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
         loop(child,current_class,current_function,filePath)
 
 def findTypeAPI(filePath, test=None) :  
-    testPath =  "./cpython/Lib/test/test_colorsys.py"  
+    testPath =  "./cpython/Lib/test/test_quopri.py"  
     tracerCode = open("tracer.py").read()
     testCode = open(testPath).read()
 
@@ -137,8 +137,70 @@ def phase1(code,filePath) :
     # Typed API description
     return result 
 
-def phase2() : 
+def phase2(apidesc) : 
+    print(f"We have: {[x['name'] for x in apidesc['functions']]}")
+    IMMUTABLE = {
+    "int", "float", "complex", "bool",
+    "str", "bytes", "tuple", "frozenset", "NoneType"
+}
+
     # L1 fuzzing
+    # We find  the input match output between functions
+
+    # Call sequence mutation
+    chains1 = []
+    # Case 1 : B(A_output)
+    for source in apidesc["functions"]:
+        for output in source["output_types"]:
+            outputs = output[1] if isinstance(output, tuple) else [output]
+
+            for target in apidesc["functions"]:
+                inputs = target["input_types"].values()
+
+                if all(out in inp for out, inp in zip(outputs, inputs)):
+                    chains1.append({"source" : source['name'],"target":target["name"]}) 
+    # Case 2  : B(other_args, A_output)
+    chains2 = []
+    for source in apidesc["functions"]:
+        for output in source["output_types"]:
+            output_type = output[0] if isinstance(output, tuple) else output
+
+            for target in apidesc["functions"]:
+                for index, input_types in enumerate(target["input_types"].values()):
+                    if output_type in input_types:
+                        chains2.append({
+                            "source": source["name"],
+                            "target": target["name"],
+                            "target_arg": index
+
+                        })
+    # Case 3 : Mutable arguments like a fucking list
+    chains3 = []
+    for source in apidesc["functions"]:
+        for arg_index, types in enumerate(source["input_types"].values()):
+            for input_type in types:
+                if input_type not in IMMUTABLE:
+                    for target in apidesc["functions"]:
+                        if target["api_id"] == source["api_id"]:
+                            continue
+
+                        for target_index, target_types in enumerate(
+                            target["input_types"].values()
+                        ):
+                            if input_type in target_types:
+                                chains3.append({
+                                    "source": source["name"],
+                                    "source_arg": arg_index,
+                                    "target": target["name"],
+                                    "target_arg": target_index,
+                                })
+                            # mutable
+    # Case 4 : shared link  , Class Object shit 
+    print(apidesc['classes'])
+
+
+
+#    print(chains3)
 
     pass
 
@@ -164,11 +226,12 @@ class Calculator:
 def greet(name="world"):
     return "Hello " + name
 """ 
-
-filePath = "./cpython/Lib/colorsys.py"
+ 
+filePath = "./cpython/Lib/quopri.py"
 #testPath =  "./cpython/Lib/test/test_colorsys.py"
 
 
 #print(code)
 apidesc =     phase1(code,filePath)
-print(apidesc)
+phase2(apidesc)
+
