@@ -1,4 +1,5 @@
 import ast 
+import json
 import glob
 import importlib.util
 import sys
@@ -137,7 +138,17 @@ def phase1(code,filePath) :
     # Typed API description
     return result 
 
-def phase2(apidesc) : 
+def buildChains(apidesc) : 
+    data = None
+    try :  
+        with open("data.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except : 
+        pass
+
+    if data : 
+        return data
+
     print(f"We have: {[x['name'] for x in apidesc['functions']]}")
     IMMUTABLE = {
     "int", "float", "complex", "bool",
@@ -311,7 +322,7 @@ def phase2(apidesc) :
             seen_chains.add(signature)
             queue.append({"apis": apis, "steps": steps})
 
-    max_chain_length = 4
+    max_chain_length = 5
     full_chains = list(queue)
     queue_index = 0
     while queue_index < len(queue):
@@ -344,9 +355,48 @@ def phase2(apidesc) :
             full_chains.append(new_chain)
             queue.append(new_chain)
 
-    print(f"Generated {len(full_chains)} full chains")
-    print(full_chains[:10])
+    with open("data.json", "w", encoding="utf-8") as f:
+        json.dump(full_chains[:1000], f, indent=4)
+
     return full_chains
+
+
+def  arg_resolve(chains) : 
+    print_chain(chains[99])
+
+
+    pass
+
+def  print_chain(chain) : 
+    print(chain)
+    print("=============================================")
+    index = 0
+    step  = chain['steps'][0]
+    OBJ_NAME = "obj"
+    inclass = 0 
+    for step in chain['steps'] :  
+        
+        type  = step[0]
+        source = step[1]['source'][1]
+        #target = step[1]['target'][1]
+        if inclass : 
+            source =source.replace(source.split(".")[0],OBJ_NAME) 
+
+        print(type)  
+        # we have wrong type here , which type should be  ? 
+        match type : 
+            case 1 :  
+                print(f"{source}() -> " )
+            case 2 : 
+                print(f"{source}() -> "  )
+            case 3 : 
+                print(f"{source}() -> "  )
+            case 4 :
+                inclass = 1
+                print(f"{OBJ_NAME} = {step[1]['target'][1]} -> ")
+            case _   : 
+                print(f"WHO ARE YOU ? ")
+
 
 def phase3() : 
     # L2 fuzzing
@@ -377,5 +427,7 @@ filePath = "./cpython/Lib/xdrlib.py"
 
 #print(code)
 apidesc =     phase1(code,filePath)
-phase2(apidesc)
+full_chains = buildChains(apidesc)
+args = arg_resolve(full_chains) 
+
 
