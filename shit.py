@@ -167,7 +167,10 @@ def phase2(apidesc) :
                 inputs = target["input_types"].values()
 
                 if all(out in inp for out, inp in zip(outputs, inputs)):
-                    chains1.append({"source" : source['name'],"target":target["name"]}) 
+                    chains1.append({
+                        "source": source["api_id"],
+                        "target": target["api_id"],
+                    }) 
     # Case 2  : B(other_args, A_output)
     chains2 = []
     for source in all_apis:
@@ -178,8 +181,8 @@ def phase2(apidesc) :
                 for index, input_types in enumerate(target["input_types"].values()):
                     if output_type in input_types:
                         chains2.append({
-                            "source": source["name"],
-                            "target": target["name"],
+                            "source": source["api_id"],
+                            "target": target["api_id"],
                             "target_arg": index
 
                         })
@@ -198,9 +201,9 @@ def phase2(apidesc) :
                         ):
                             if input_type in target_types:
                                 chains3.append({
-                                    "source": source["name"],
+                                    "source": source["api_id"],
                                     "source_arg": arg_index,
-                                    "target": target["name"],
+                                    "target": target["api_id"],
                                     "target_arg": target_index,
                                 })
                             # mutable
@@ -234,50 +237,116 @@ def phase2(apidesc) :
                     "source" : nor['api_id'],
                     "target" : target_method['api_id'],
                     })
-        # Combine full chain with matching from with to
 
 
- 
+    # Combine full chain with matching from with to
+    # SLOP ALERT , I dont know dsa sorry guys
+    link_groups = (chains1, chains2, chains3, chain_shared_obj)
+    outgoing_links = {}
+    for case_number, links in enumerate(link_groups, start=1):
+        for link in links:
+            outgoing_links.setdefault(link["source"], []).append(
+                (case_number, link)
+            )
 
+    constructors = {}
+    for cls in apidesc["classes"]:
+        init_method = next(
+            (func for func in cls["functions"] if func["name"] == "__init__"),
+            None,
+        )
+        if init_method:
+            constructors[cls["name"]] = init_method["api_id"]
 
+    fuzz_input_types = {"bytes", "str", "IO", "BytesIO", "StringIO", "ANY"}
+    entrypoints = []
+    for api in all_apis:
+        observed_input_types = {
+            input_type
+            for types in api["input_types"].values()
+            for input_type in types
+        }
+        if observed_input_types & fuzz_input_types:
+            entrypoints.append(api)
 
-    full_shared_chains = []
+    def edge_signature(case_number, link):
+        return (
+            case_number,
+            link["source"],
+            link["target"],
+            link.get("source_arg"),
+            link.get("target_arg"),
+            link.get("parent_class"),
+        )
+
     queue = []
+    seen_chains = set()
+    for entrypoint in entrypoints:
+        parent_class = entrypoint.get("parent_class")
+        constructor = constructors.get(parent_class)
 
-    for link in chain_shared_obj:
-        if link["source"][1].endswith(".__init__"):
-            queue.append({
-                "parent_class": link["parent_class"],
-                "apis": [link["source"], link["target"]],
-            })
+        if parent_class and entrypoint["name"] != "__init__":
+            constructor_link = next(
+                (
+                    link
+                    for link in chain_shared_obj
+                    if link["source"] == constructor
+                    and link["target"] == entrypoint["api_id"]
+                ),
+                None,
+            )
+            if constructor_link is None:
+                continue
+            apis = [constructor, entrypoint["api_id"]]
+            steps = [(4, constructor_link)]
+        else:
+            apis = [entrypoint["api_id"]]
+            steps = []
 
-    while queue:
-        chain = queue.pop(0)
-        full_shared_chains.append(chain)
+        signature = (
+            tuple(apis),
+            tuple(edge_signature(case, link) for case, link in steps),
+        )
+        if signature not in seen_chains:
+            seen_chains.add(signature)
+            queue.append({"apis": apis, "steps": steps})
 
-        if len(chain["apis"]) >= 4:
+    max_chain_length = 4
+    full_chains = list(queue)
+    queue_index = 0
+    while queue_index < len(queue):
+        chain = queue[queue_index]
+        queue_index += 1
+
+        if len(chain["apis"]) >= max_chain_length:
             continue
 
-        last_api = chain["apis"][-1]
-        for link in chain_shared_obj:
-            if link["parent_class"] != chain["parent_class"]:
-                continue
-            if link["source"] != last_api:
-                continue
-            if link["target"] in chain["apis"]:
+        current_api = chain["apis"][-1]
+        for case_number, link in outgoing_links.get(current_api, []):
+            target = link["target"]
+            if target in chain["apis"]:
                 continue
 
-            queue.append({
-                "parent_class": chain["parent_class"],
-                "apis": chain["apis"] + [link["target"]],
-            })
+            new_apis = chain["apis"] + [target]
+            new_steps = chain["steps"] + [(case_number, link)]
+            signature = (
+                tuple(new_apis),
+                tuple(
+                    edge_signature(case, step_link)
+                    for case, step_link in new_steps
+                ),
+            )
+            if signature in seen_chains:
+                continue
 
-    print(f"Generated {len(full_shared_chains)} shared-object chains")
-    print(full_shared_chains[:10])
+            seen_chains.add(signature)
+            new_chain = {"apis": new_apis, "steps": new_steps}
+            full_chains.append(new_chain)
+            queue.append(new_chain)
 
-#    print(chains3)
-
-    pass
+    print(f"Generated {len(full_chains)} full chains")
+    print(full_chains[:10])
+    return full_chains
 
 def phase3() : 
     # L2 fuzzing
