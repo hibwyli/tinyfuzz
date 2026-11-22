@@ -24,7 +24,7 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
         current_class =  {
             "name" :  node.name ,  
             "bases" : [ast.unparse(x) for x in node.bases]  , 
-            "methods" :[] 
+            "functions" :[] 
         }
         result["classes"].append(current_class)  
     elif  isinstance(node,  (ast.FunctionDef,ast.AsyncFunctionDef)) : 
@@ -55,7 +55,7 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
             "exceptions" : []  
         }
         if current_class : 
-            current_class["methods"].append(current_function)
+            current_class["functions"].append(current_function)
         else : 
             result['functions'].append(current_function)
 
@@ -82,7 +82,7 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
         loop(child,current_class,current_function,filePath)
 
 def findTypeAPI(filePath, test=None) :  
-    testPath =  "./cpython/Lib/test/test_quopri.py"  
+    testPath =  "./cpython/Lib/test/test_xdrlib.py"  
     tracerCode = open("tracer.py").read()
     testCode = open(testPath).read()
 
@@ -128,7 +128,7 @@ def phase1(code,filePath) :
     apis = result["functions"] + [
         method
         for cls in result["classes"]
-        for method in cls["methods"]
+        for method in cls["functions"]
     ]
     for api in apis:
         api["input_types"] = dict(inputType.get(api["api_id"], {}))
@@ -147,25 +147,34 @@ def phase2(apidesc) :
     # L1 fuzzing
     # We find  the input match output between functions
 
+    functions = list(apidesc["functions"])
+
+    methods =   []
+    for cls in apidesc["classes"]:
+        for method in cls["functions"]:
+            method["parent_class"] = cls["name"]
+            methods.append(method) 
+
+    all_apis =  functions + methods
     # Call sequence mutation
     chains1 = []
     # Case 1 : B(A_output)
-    for source in apidesc["functions"]:
+    for source in all_apis:
         for output in source["output_types"]:
             outputs = output[1] if isinstance(output, tuple) else [output]
 
-            for target in apidesc["functions"]:
+            for target in all_apis:
                 inputs = target["input_types"].values()
 
                 if all(out in inp for out, inp in zip(outputs, inputs)):
                     chains1.append({"source" : source['name'],"target":target["name"]}) 
     # Case 2  : B(other_args, A_output)
     chains2 = []
-    for source in apidesc["functions"]:
+    for source in all_apis:
         for output in source["output_types"]:
             output_type = output[0] if isinstance(output, tuple) else output
 
-            for target in apidesc["functions"]:
+            for target in all_apis:
                 for index, input_types in enumerate(target["input_types"].values()):
                     if output_type in input_types:
                         chains2.append({
@@ -176,11 +185,11 @@ def phase2(apidesc) :
                         })
     # Case 3 : Mutable arguments like a fucking list
     chains3 = []
-    for source in apidesc["functions"]:
+    for source in all_apis:
         for arg_index, types in enumerate(source["input_types"].values()):
             for input_type in types:
                 if input_type not in IMMUTABLE:
-                    for target in apidesc["functions"]:
+                    for target in all_apis:
                         if target["api_id"] == source["api_id"]:
                             continue
 
@@ -196,9 +205,75 @@ def phase2(apidesc) :
                                 })
                             # mutable
     # Case 4 : shared link  , Class Object shit 
-    print(apidesc['classes'])
+
+    chain_shared_obj =  []
+    for cl in apidesc['classes']: 
+        res  = {}
+        init_method = ([x  for x in cl['functions'] if x['name'] == '__init__' ] or [None] )[0] 
+        nor_methods = ([x  for x in cl['functions'] if x['name'] != '__init__' ] or [None] )
+
+        # link from init -> method
+        for  nor in nor_methods :
+            if nor is None:
+                continue
+
+            if init_method :  
+                chain_shared_obj.append({
+                    "parent_class" : cl['name'],
+                    "source" : init_method['api_id'],
+                    "target" : nor['api_id'],
+                    })
+
+            # link from method -> method
+            for target_method in nor_methods:
+                if target_method is None or target_method['api_id'] == nor['api_id']:
+                    continue
+
+                chain_shared_obj.append({
+                    "parent_class" : cl['name'],
+                    "source" : nor['api_id'],
+                    "target" : target_method['api_id'],
+                    })
+        # Combine full chain with matching from with to
 
 
+ 
+
+
+
+    full_shared_chains = []
+    queue = []
+
+    for link in chain_shared_obj:
+        if link["source"][1].endswith(".__init__"):
+            queue.append({
+                "parent_class": link["parent_class"],
+                "apis": [link["source"], link["target"]],
+            })
+
+    while queue:
+        chain = queue.pop(0)
+        full_shared_chains.append(chain)
+
+        if len(chain["apis"]) >= 4:
+            continue
+
+        last_api = chain["apis"][-1]
+        for link in chain_shared_obj:
+            if link["parent_class"] != chain["parent_class"]:
+                continue
+            if link["source"] != last_api:
+                continue
+            if link["target"] in chain["apis"]:
+                continue
+
+            queue.append({
+                "parent_class": chain["parent_class"],
+                "apis": chain["apis"] + [link["target"]],
+            })
+
+    print(f"Generated {len(full_shared_chains)} shared-object chains")
+    print(full_shared_chains[:10])
 
 #    print(chains3)
 
@@ -227,7 +302,7 @@ def greet(name="world"):
     return "Hello " + name
 """ 
  
-filePath = "./cpython/Lib/quopri.py"
+filePath = "./cpython/Lib/xdrlib.py"
 #testPath =  "./cpython/Lib/test/test_colorsys.py"
 
 
