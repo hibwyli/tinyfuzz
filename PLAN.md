@@ -1,8 +1,15 @@
 # Todo
 
 
+1. Solve Library class type  
+2. Unknown type 
+ 
+# Question
 
-//1. Current just remove fuzz point , not remove the args supplied  from the dependencies like case 1 , case 2,.... 
-3. Args has default values 
-4. Self/ cls 
-5. Choose values base on 4 types  defined in papers
+
+
+
+# Limitation
+
+Resolving args can lead to  those args crash the function because its constrained and we still dont have ways to figure it out. Still dont know what is the power of Atheris.
+

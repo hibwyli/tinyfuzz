@@ -22,8 +22,17 @@ result =  {
     "classes" : []
 }  
 
+IMMUTABLE = {
+    "int", "float", "complex", "bool",
+    "str", "bytes", "tuple", "frozenset", "NoneType" , "BytesIO"
+    } 
+
+
+
 def loop(node,current_class=None,current_function=None,filePath=None) : 
+
  
+
     if  isinstance(node,ast.ClassDef) : 
         if current_function is not None  : 
             return
@@ -89,7 +98,7 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
         loop(child,current_class,current_function,filePath)
 
 def findTypeAPI(filePath, test=None) :  
-    testPath =  "./cpython/Lib/test/test_quopri.py"  
+    testPath =  "./cpython/Lib/test/test_fractions.py"  
     tracerCode = open("tracer.py").read()
     testCode = open(testPath).read()
 
@@ -102,8 +111,8 @@ def findTypeAPI(filePath, test=None) :
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
 
-    exec(tracerCode, current_namespace, current_namespace)
-    try:
+    exec(tracerCode, current_namespace, current_namespace) 
+    try: 
         exec(testCode, current_namespace, current_namespace)
     except SystemExit:
         pass
@@ -158,11 +167,6 @@ def buildChains(apidesc) :
         return data
 
     print(f"We have: {[x['name'] for x in apidesc['functions']]}")
-    IMMUTABLE = {
-    "int", "float", "complex", "bool",
-    "str", "bytes", "tuple", "frozenset", "NoneType"
-}
-
     # L1 fuzzing
 
     # We find  the input match output between functions
@@ -417,13 +421,25 @@ def random_value(type_name):
         return None
 
     if type_name == "list":
-        return []
+        element_type = random.choice(["bool", "int", "float", "str", "bytes"])
+        return [
+            random_value(element_type)
+            for _ in range(random.randint(1, 5))
+        ]
 
     if type_name == "tuple":
-        return ()
+        element_type = random.choice(["bool", "int", "float", "str", "bytes"])
+        return tuple(
+            random_value(element_type)
+            for _ in range(random.randint(1, 5))
+        )
 
     if type_name == "dict":
-        return {}
+        key_type = random.choice(["bool", "int", "float", "str", "bytes"])
+        value_type = random.choice(["bool", "int", "float", "str", "bytes"])
+        return {
+            random_value(key_type): random_value(value_type)
+        }
 
     if type_name == "set":
         return set()
@@ -437,69 +453,94 @@ def  findEmtpyArgs(chains) :
         #    exit()
 
 # We check this chain only , later will loop all
-    chain = chains[120]  # 130
-    # Find fuzzing point first
-    fuzzPoint = chain['fuzz_point']
-    apis = chain['apis'] 
+    for  chain in chains : 
+        # Find fuzzing point first
+        #chain = chains[0]
+        fuzzPoint = chain['fuzz_point']
+        apis = chain['apis'] 
 
-    print(f"{len(chain['steps'])} steps , fuzz point at  : { fuzzPoint}")
-    paramsPerStep = []
-    for api in apis : 
-        paramsPerStep.append([x for x in all_apis if x["api_id"] == tuple(api)][0]['params'])
+        print(f"{len(chain['steps'])} steps , fuzz point at  : { fuzzPoint}")
+        paramsPerStep = []
+        for api in apis : 
+            paramsPerStep.append([x for x in all_apis if x["api_id"] == tuple(api)][0]['params'])
 
-    # Get provided input from chain
-    provided_args  = set()
-    for type , link in  chain['steps'] : 
-        print(f"Case {type} {link}")
+        # Get provided input from chain
+        provided_args  = set()
+        for type , link in  chain['steps'] : 
+            #print(f"Case {type} {link}")
 
-        match type : 
-            case 1:
-                provided_args.add((tuple(link["target"]), "ALL"))
-            case  2 :
-                provided_args.add((tuple(link["target"]),link["target_arg"]))
-            case  3:
-                provided_args.add((tuple(link["target"]),link["target_arg"]))
-            case _ : 
-                pass
+            match type : 
+                case 1:
+                    provided_args.add((tuple(link["target"]), "ALL"))
+                case  2 :
+                    provided_args.add((tuple(link["target"]),link["target_arg"]))
+                case  3:
+                    provided_args.add((tuple(link["target"]),link["target_arg"]))
+                case _ : 
+                    pass
 
-    print(f"Provided  args   :  {provided_args}")
-    unresolveArgs = []
+        # print(f"Provided  args   :  {provided_args}")
+        unresolveArgs = []
 
-    for api, params in zip(apis, paramsPerStep):
-        for index, param in enumerate(params):
-            # remove fuzz point 
-            if (
-                tuple(api) == tuple(fuzzPoint["api_id"])
-                and index == fuzzPoint["arg_index"]
-            ):
-                continue
-            if (
-                (tuple(api), "ALL") in provided_args
-                or (tuple(api), index) in provided_args
-            ):
-                continue
-            # remove dependency supplied point
-            unresolveArgs.append({
-                "api_id": tuple(api),
-                "arg_index": index,
-                "arg_name": param,
-            })
-    print(f"\nUnsovled  args : {unresolveArgs}") 
+        for api, params in zip(apis, paramsPerStep): 
+            # This look up consume so large flops  ,  which is better way ? 
+            api_desc = next(x for x in all_apis if x["api_id"] == tuple(api))
+            default_start = len(params) - len(api_desc["defaults"])
 
-    # Resolve args here
-    for arg in unresolveArgs:
-        input_types = [x for x in all_apis if x["api_id"] == tuple(arg["api_id"])][0]["input_types"].get(arg["arg_name"], set())
+            #print("API DESC : " , api_desc)
+            for index, param in enumerate(params):
+                # remove fuzz point 
+                if (
+                    tuple(api) == tuple(fuzzPoint["api_id"])
+                    and index == fuzzPoint["arg_index"]
+                ):
+                    continue
+                # Remove  provided args
+                if (
+                    (tuple(api), "ALL") in provided_args
+                    or (tuple(api), index) in provided_args
+                ):
+                    continue
+                # Use default 
+                has_default = index >= default_start
+                if has_default: 
+                    continue
 
-        
-        selected_type = random.choice(tuple(input_types))
-        
+                # remove dependency supplied point
+                unresolveArgs.append({
+                    "api_id": tuple(api),
+                    "arg_index": index,
+                    "arg_name": param,
+                })
 
-        arg["input_type"] = selected_type
-        arg["value"] = random_value(selected_type)
+        #if len(unresolveArgs) > 0 : 
+            #print("Unresolved : " , unresolveArgs)
+            #print("FOUND IT at index :  " , chains.index(chain))
+            #exit(0)
 
 
-    chain["resolved_args"] = unresolveArgs
-    print("\nResolved chain : " , chain)
+        # Resolve args here
+        for arg in unresolveArgs:
+            input_types = [x for x in all_apis if x["api_id"] == tuple(arg["api_id"])][0]["input_types"].get(arg["arg_name"], set())
+
+            selected_type = random.choice(tuple(input_types))
+
+            library_classes = {cl["name"] for cl in apidesc["classes"]}
+            print(library_classes)
+
+            if selected_type in {cl["name"] for cl in apidesc["classes"]} : 
+                print("FOUND IT at index :  " , chains.index(chain))
+                print("TYPE : " , selected_type)
+                print(arg)
+                exit(0)  
+
+            
+
+            arg["input_type"] = selected_type
+            arg["value"] = random_value(selected_type)
+
+        chain["resolved_args"] = unresolveArgs
+        #print("\nResolved chain : " , chain)
 
 
 
@@ -525,8 +566,8 @@ class Calculator:
 def greet(name="world"):
     return "Hello " + name
 """ 
- 
-filePath = "./cpython/Lib/quopri.py"
+
+filePath = "./cpython/Lib/fractions.py"
 #testPath =  "./cpython/Lib/test/test_colorsys.py"
 
 
