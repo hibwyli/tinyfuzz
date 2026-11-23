@@ -437,8 +437,8 @@ def  findEmtpyArgs(chains) :
         #    exit()
 
 # We check this chain only , later will loop all
-    chain = chains[130] 
-    # Find fuzzing point first 
+    chain = chains[120]  # 130
+    # Find fuzzing point first
     fuzzPoint = chain['fuzz_point']
     apis = chain['apis'] 
 
@@ -447,21 +447,44 @@ def  findEmtpyArgs(chains) :
     for api in apis : 
         paramsPerStep.append([x for x in all_apis if x["api_id"] == tuple(api)][0]['params'])
 
+    # Get provided input from chain
+    provided_args  = set()
+    for type , link in  chain['steps'] : 
+        print(f"Case {type} {link}")
+
+        match type : 
+            case 1:
+                provided_args.add((tuple(link["target"]), "ALL"))
+            case  2 :
+                provided_args.add((tuple(link["target"]),link["target_arg"]))
+            case  3:
+                provided_args.add((tuple(link["target"]),link["target_arg"]))
+            case _ : 
+                pass
+
+    print(f"Provided  args   :  {provided_args}")
     unresolveArgs = []
+
     for api, params in zip(apis, paramsPerStep):
         for index, param in enumerate(params):
+            # remove fuzz point 
             if (
                 tuple(api) == tuple(fuzzPoint["api_id"])
                 and index == fuzzPoint["arg_index"]
             ):
                 continue
-
+            if (
+                (tuple(api), "ALL") in provided_args
+                or (tuple(api), index) in provided_args
+            ):
+                continue
+            # remove dependency supplied point
             unresolveArgs.append({
                 "api_id": tuple(api),
                 "arg_index": index,
                 "arg_name": param,
             })
-    print(f"Unsovled  args : {unresolveArgs}") 
+    print(f"\nUnsovled  args : {unresolveArgs}") 
 
     # Resolve args here
     for arg in unresolveArgs:
@@ -476,27 +499,7 @@ def  findEmtpyArgs(chains) :
 
 
     chain["resolved_args"] = unresolveArgs
-
-
-
-
-    type = 0 
-
-    match type : 
-        case  1 : 
-            pass
-        case  2 : 
-            pass
-        case  3 : 
-            pass
-        case  4 : 
-            pass
-        case _  : 
-            pass
-
-
-
-
+    print("\nResolved chain : " , chain)
 
 
 
