@@ -98,7 +98,10 @@ def loop(node,current_class=None,current_function=None,filePath=None) :
         loop(child,current_class,current_function,filePath)
 
 def findTypeAPI(filePath, test=None) :  
-    testPath =  "./cpython/Lib/test/test_fractions.py"  
+    testPath =  "./cpython/Lib/test/test_ipaddress.py"  
+    cpython_lib = str(Path(testPath).resolve().parents[1])
+    if cpython_lib not in sys.path:
+        sys.path.append(cpython_lib)
     tracerCode = open("tracer.py").read()
     testCode = open(testPath).read()
 
@@ -111,13 +114,16 @@ def findTypeAPI(filePath, test=None) :
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
 
-    exec(tracerCode, current_namespace, current_namespace) 
+    exec(tracerCode, current_namespace, current_namespace)
+    original_argv = sys.argv
+    sys.argv = [sys.argv[0]]
     try: 
         exec(testCode, current_namespace, current_namespace)
     except SystemExit:
         pass
     finally:
         sys.settrace(None)
+        sys.argv = original_argv
 
     inputs = current_namespace["input_types"]
     outputs = current_namespace["output_types"]
@@ -155,8 +161,20 @@ def phase1(code,filePath) :
 
 def buildChains(apidesc) : 
     global all_apis  
+
+    functions = list(apidesc["functions"])
+
+    methods =   []
+    for cls in apidesc["classes"]:
+        for method in cls["functions"]:
+            method["parent_class"] = cls["name"]
+            methods.append(method) 
+
+    all_apis =  functions + methods
+
     data = None
-    if   len(sys.argv) > 1 and sys.argv[1] == "CACHE"  : 
+    print('WTF : ' , sys.argv)
+    if   len(sys.argv) > 1 and sys.argv[1] == "SHIT"  : 
         try :  
             with open("data.json", "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -171,15 +189,6 @@ def buildChains(apidesc) :
 
     # We find  the input match output between functions
 
-    functions = list(apidesc["functions"])
-
-    methods =   []
-    for cls in apidesc["classes"]:
-        for method in cls["functions"]:
-            method["parent_class"] = cls["name"]
-            methods.append(method) 
-
-    all_apis =  functions + methods
     # Call sequence mutation
     chains1 = []
     # Case 1 : B(A_output)
@@ -282,7 +291,10 @@ def buildChains(apidesc) :
         if init_method:
             constructors[cls["name"]] = init_method["api_id"]
 
-    fuzz_input_types = {"bytes", "str", "IO", "BytesIO", "StringIO", "ANY"}
+    fuzz_input_types = {
+        "bytes", "str", "IO", "BytesIO", "StringIO", "ANY",
+        "int", "float", "bool",
+    }
     fuzz_points = []
     for api in all_apis:
         for arg_index, arg_name in enumerate(api["params"]):
@@ -307,7 +319,11 @@ def buildChains(apidesc) :
 
     queue = []
     seen_chains = set()
+    max_chains = 1000
     for fuzz_point in fuzz_points:
+        if len(queue) >= max_chains:
+            break
+
         entrypoint = fuzz_point["api"]
         parent_class = entrypoint.get("parent_class")
         constructor = constructors.get(parent_class)
@@ -352,7 +368,7 @@ def buildChains(apidesc) :
     max_chain_length = 5
     full_chains = list(queue)
     queue_index = 0
-    while queue_index < len(queue):
+    while queue_index < len(queue) and len(full_chains) < max_chains:
         chain = queue[queue_index]
         queue_index += 1
 
@@ -361,6 +377,9 @@ def buildChains(apidesc) :
 
         current_api = chain["apis"][-1]
         for case_number, link in outgoing_links.get(current_api, []):
+            if len(full_chains) >= max_chains:
+                break
+
             target = link["target"]
             if target in chain["apis"]:
                 continue
@@ -448,6 +467,7 @@ def random_value(type_name):
 
 def  findEmtpyArgs(chains) : 
     #for chain in chains : 
+
         #if len(chain['steps']) == 3  : 
         #    print(chains.index(chain))
         #    exit()
@@ -455,7 +475,7 @@ def  findEmtpyArgs(chains) :
 # We check this chain only , later will loop all
     for  chain in chains : 
         # Find fuzzing point first
-        #chain = chains[0]
+        #chain = chains[866]
         fuzzPoint = chain['fuzz_point']
         apis = chain['apis'] 
 
@@ -468,7 +488,6 @@ def  findEmtpyArgs(chains) :
         provided_args  = set()
         for type , link in  chain['steps'] : 
             #print(f"Case {type} {link}")
-
             match type : 
                 case 1:
                     provided_args.add((tuple(link["target"]), "ALL"))
@@ -479,7 +498,7 @@ def  findEmtpyArgs(chains) :
                 case _ : 
                     pass
 
-        # print(f"Provided  args   :  {provided_args}")
+        #print(f"Provided  args   :  {provided_args}")
         unresolveArgs = []
 
         for api, params in zip(apis, paramsPerStep): 
@@ -500,7 +519,7 @@ def  findEmtpyArgs(chains) :
                     (tuple(api), "ALL") in provided_args
                     or (tuple(api), index) in provided_args
                 ):
-                    continue
+                   continue
                 # Use default 
                 has_default = index >= default_start
                 if has_default: 
@@ -520,27 +539,116 @@ def  findEmtpyArgs(chains) :
 
 
         # Resolve args here
+        print("Provided args : " , provided_args)
+        print("Unresolved args: ",  unresolveArgs) 
+
+        # Store object 
+        object_pool = chain.setdefault("object_pool", {})
+        constructor_failed = False
+
         for arg in unresolveArgs:
             input_types = [x for x in all_apis if x["api_id"] == tuple(arg["api_id"])][0]["input_types"].get(arg["arg_name"], set())
 
-            selected_type = random.choice(tuple(input_types))
-
             library_classes = {cl["name"] for cl in apidesc["classes"]}
-            print(library_classes)
+            if input_types:
+                library_candidates = input_types & library_classes
+                selected_type = (
+                    next(iter(library_candidates))
+                    if library_candidates
+                    else random.choice(tuple(input_types))
+                )
+            else:
+                fallback_types = {
+                    "bool", "int", "float", "str", "bytes", "NoneType",
+                    "list", "tuple", "dict", "set",
+                } | library_classes
+                selected_type = random.choice(tuple(fallback_types))
 
-            if selected_type in {cl["name"] for cl in apidesc["classes"]} : 
+            if selected_type in library_classes:
+                if selected_type in object_pool : 
+                    # Reuse object
+                    arg["input_type"] = selected_type
+                    arg["value"] = object_pool[selected_type]
+                    continue 
+                    
+
+
+                # We find the shit have 2 steps : 
                 print("FOUND IT at index :  " , chains.index(chain))
                 print("TYPE : " , selected_type)
-                print(arg)
-                exit(0)  
+                print("STEPS  : " , len(chain['steps']))
+                print("Chain :" ,  chain)
+                # exit(0)  
+                #  LIbrary type , have object previous -> reuse  else call constructor  
+                # So we need a way to detect if the previous chain have a object right ? 
+                # Basically when the first chain will also meet a class and call constructor
+                # Just create a handle type here
 
-            
+                # Now construct the object
+                class_desc = next(
+                    cl for cl in apidesc["classes"]
+                    if cl["name"] == selected_type
+                )
 
-            arg["input_type"] = selected_type
-            arg["value"] = random_value(selected_type)
+                constructor = next(
+                    fn for fn in class_desc["functions"]
+                    if fn["name"] == "__init__"
+                )
+                constructor_values = []
+                default_start = (len(constructor['params']) - len(constructor['defaults'])) 
+                for index, param_name in enumerate(constructor['params'])  :
+                    if index >= default_start:
+                        continue
 
+                    possible_types = constructor["input_types"].get(
+                        param_name, set()
+                    )
+
+                    if (
+                        selected_type in {
+                            "IPv4Address", "IPv6Address",
+                            "IPv4Interface", "IPv6Interface",
+                            "IPv4Network", "IPv6Network",
+                        }
+                        and param_name == "address"
+                        and "int" in possible_types
+                    ):
+                        constructor_values.append(random.randint(0, 5))
+                    else:
+                        param_type = random.choice(tuple(possible_types))
+                        constructor_values.append(random_value(param_type))
+
+
+                module_name = Path(arg["api_id"][0]).stem
+                module = sys.modules[module_name]
+                class_object = getattr(module, selected_type)
+                try:
+                    obj = class_object(*constructor_values)
+                except Exception as error:
+                    chain["valid"] = False
+                    chain["failure"] = {
+                        "stage": "constructor",
+                        "type": selected_type,
+                        "error": repr(error),
+                    }
+                    constructor_failed = True
+                    break
+
+                object_pool[selected_type] = obj
+                arg["value"] = obj
+                arg["input_type"] = selected_type
+                continue
+            else : 
+                arg["input_type"] = selected_type
+                arg["value"] = random_value(selected_type)
+
+        if constructor_failed:
+            print("\nInvalid chain : ", chain["failure"])
+            return None
+
+        chain["valid"] = True
         chain["resolved_args"] = unresolveArgs
-        #print("\nResolved chain : " , chain)
+        print("\nResolved chain : " , chain)
 
 
 
@@ -567,7 +675,7 @@ def greet(name="world"):
     return "Hello " + name
 """ 
 
-filePath = "./cpython/Lib/fractions.py"
+filePath = "./cpython/Lib/ipaddress.py"
 #testPath =  "./cpython/Lib/test/test_colorsys.py"
 
 
