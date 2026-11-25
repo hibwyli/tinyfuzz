@@ -1,9 +1,8 @@
 # Todo
+4.3.3 , harness generators
+From chain to code generator
 
 
-1. Solve Library class type  
-2. Unknown type 
- 
 # Question
 
 

@@ -1,4 +1,6 @@
 import ast 
+import pickle 
+
 import string 
 import random
 import sys
@@ -203,6 +205,7 @@ def buildChains(apidesc) :
                     chains1.append({
                         "source": source["api_id"],
                         "target": target["api_id"],
+                        "unpack_return": isinstance(output, tuple),
                     }) 
     # Case 2  : B(other_args, A_output)
     chains2 = []
@@ -315,6 +318,7 @@ def buildChains(apidesc) :
             link.get("source_arg"),
             link.get("target_arg"),
             link.get("parent_class"),
+            link.get("unpack_return"),
         )
 
     queue = []
@@ -479,7 +483,7 @@ def  findEmtpyArgs(chains) :
         fuzzPoint = chain['fuzz_point']
         apis = chain['apis'] 
 
-        print(f"{len(chain['steps'])} steps , fuzz point at  : { fuzzPoint}")
+        #print(f"{len(chain['steps'])} steps , fuzz point at  : { fuzzPoint}")
         paramsPerStep = []
         for api in apis : 
             paramsPerStep.append([x for x in all_apis if x["api_id"] == tuple(api)][0]['params'])
@@ -539,8 +543,8 @@ def  findEmtpyArgs(chains) :
 
 
         # Resolve args here
-        print("Provided args : " , provided_args)
-        print("Unresolved args: ",  unresolveArgs) 
+        #print("Provided args : " , provided_args)
+        #print("Unresolved args: ",  unresolveArgs) 
 
         # Store object 
         object_pool = chain.setdefault("object_pool", {})
@@ -644,11 +648,155 @@ def  findEmtpyArgs(chains) :
 
         if constructor_failed:
             print("\nInvalid chain : ", chain["failure"])
-            return None
+            continue
 
         chain["valid"] = True
         chain["resolved_args"] = unresolveArgs
         print("\nResolved chain : " , chain)
+
+
+def chain_to_source(chain, module_name):
+    resolved_args = chain.get("resolved_args", [])
+    fuzz_point = chain["fuzz_point"]
+    tree = ast.Module(
+        body=[ast.Import(names=[ast.alias(name=module_name)])],
+        type_ignores=[],
+    )
+    argument_counter = 0
+    result_counter = 0
+
+    def build_args(api_id):
+        args = {
+            arg["arg_index"]: ast.Constant(value=arg["value"])
+            for arg in resolved_args
+            if tuple(arg["api_id"]) == tuple(api_id)
+        }
+        if tuple(fuzz_point["api_id"]) == tuple(api_id):
+            args[fuzz_point["arg_index"]] = ast.Name(
+                id="fuzz_input",
+                ctx=ast.Load(),
+            )
+        return args
+
+    def materialize_args(args):
+        nonlocal argument_counter
+        for index in sorted(args):
+            if isinstance(args[index], ast.Name):
+                continue
+            variable_name = f"arg{argument_counter}"
+            argument_counter += 1
+            tree.body.append(
+                ast.Assign(
+                    targets=[ast.Name(id=variable_name, ctx=ast.Store())],
+                    value=args[index],
+                )
+            )
+            args[index] = ast.Name(id=variable_name, ctx=ast.Load())
+
+    first_api = chain["apis"][0]
+    current_args = build_args(first_api)
+    materialize_args(current_args)
+    first_args = [current_args[index] for index in sorted(current_args)]
+
+    if first_api[1].endswith(".__init__"):
+        current_result = "obj0"
+        current_receiver = current_result
+        first_func = ast.Attribute(
+            value=ast.Name(id=module_name, ctx=ast.Load()),
+            attr=first_api[1].rsplit(".", 1)[0],
+            ctx=ast.Load(),
+        )
+    else:
+        current_result = "result0"
+        current_receiver = None
+        result_counter = 1
+        first_func = ast.Attribute(
+            value=ast.Name(id=module_name, ctx=ast.Load()),
+            attr=first_api[1],
+            ctx=ast.Load(),
+        )
+
+    tree.body.append(
+        ast.Assign(
+            targets=[ast.Name(id=current_result, ctx=ast.Store())],
+            value=ast.Call(func=first_func, args=first_args, keywords=[]),
+        )
+    )
+
+    for case_type, link in chain["steps"]:
+        target = link["target"]
+
+        if case_type == 1:
+            source_result = ast.Name(id=current_result, ctx=ast.Load())
+            if link.get("unpack_return", False):
+                call_args = [ast.Starred(value=source_result, ctx=ast.Load())]
+                target_desc = next(
+                    api for api in all_apis
+                    if tuple(api["api_id"]) == tuple(target)
+                )
+                target_args = {
+                    index: ast.Subscript(
+                        value=ast.Name(id=current_result, ctx=ast.Load()),
+                        slice=ast.Constant(value=index),
+                        ctx=ast.Load(),
+                    )
+                    for index in range(len(target_desc["params"]))
+                }
+            else:
+                call_args = [source_result]
+                target_args = {0: source_result}
+        else:
+            target_args = build_args(target)
+            if case_type == 2:
+                target_args[link["target_arg"]] = ast.Name(
+                    id=current_result,
+                    ctx=ast.Load(),
+                )
+            elif case_type == 3:
+                target_args[link["target_arg"]] = current_args[link["source_arg"]]
+            elif case_type != 4:
+                raise ValueError(f"Unknown chain case: {case_type}")
+            materialize_args(target_args)
+            call_args = [target_args[index] for index in sorted(target_args)]
+
+        if case_type == 4:
+            target_func = ast.Attribute(
+                value=ast.Name(id=current_receiver, ctx=ast.Load()),
+                attr=target[1].rsplit(".", 1)[-1],
+                ctx=ast.Load(),
+            )
+        else:
+            target_func = ast.Attribute(
+                value=ast.Name(id=module_name, ctx=ast.Load()),
+                attr=target[1].rsplit(".", 1)[-1],
+                ctx=ast.Load(),
+            )
+            current_receiver = None
+
+        result_name = f"result{result_counter}"
+        result_counter += 1
+        tree.body.append(
+            ast.Assign(
+                targets=[ast.Name(id=result_name, ctx=ast.Store())],
+                value=ast.Call(func=target_func, args=call_args, keywords=[]),
+            )
+        )
+        current_result = result_name
+        current_args = target_args
+
+    return ast.unparse(ast.fix_missing_locations(tree))
+
+
+def write_harnesses(chains, module_name, output_path="harness.py"):
+    harnesses = []
+    for index, chain in enumerate(chains):
+        try:
+            source = chain_to_source(chain, module_name)
+        except Exception as error:
+            source = f"# Could not generate chain {index}: {error!r}"
+        harnesses.append(f"# Chain {index}\n{source}")
+
+    Path(output_path).write_text("\n\n===\n\n".join(harnesses))
 
 
 
@@ -681,7 +829,21 @@ filePath = "./cpython/Lib/ipaddress.py"
 
 #print(code)
 apidesc =     phase1(code,filePath)
+with open('apisec.json','wb') as f  : 
+    f.write(pickle.dumps(apidesc))
+print(apidesc['imports']) 
 full_chains = buildChains(apidesc)
 args = findEmtpyArgs(full_chains) 
+write_harnesses(full_chains, Path(filePath).stem)
 
 
+# Get the longest chains ? 
+
+max_index = max(
+    range(len(full_chains)),
+    key=lambda i: len(full_chains[i].get("steps", []))
+)
+
+print("Max index:", max_index)
+print("Max steps:", len(full_chains[max_index].get("steps", [])))
+print(f"testing chain : " , pickle.dumps(full_chains[max_index]))
