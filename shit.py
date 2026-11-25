@@ -664,6 +664,14 @@ def chain_to_source(chain, module_name):
     )
     argument_counter = 0
     result_counter = 0
+    receiver_counter = 0
+    receivers = {}
+
+    def get_api(api_id):
+        return next(
+            api for api in all_apis
+            if tuple(api["api_id"]) == tuple(api_id)
+        )
 
     def build_args(api_id):
         args = {
@@ -693,6 +701,34 @@ def chain_to_source(chain, module_name):
             )
             args[index] = ast.Name(id=variable_name, ctx=ast.Load())
 
+    def get_receiver(parent_class):
+        nonlocal receiver_counter
+        if parent_class in receivers:
+            return receivers[parent_class]
+
+        variable_name = f"obj{receiver_counter}"
+        receiver_counter += 1
+        if parent_class in chain.get("object_pool", {}):
+            value = ast.Constant(value=chain["object_pool"][parent_class])
+        else:
+            value = ast.Call(
+                func=ast.Attribute(
+                    value=ast.Name(id=module_name, ctx=ast.Load()),
+                    attr=parent_class,
+                    ctx=ast.Load(),
+                ),
+                args=[],
+                keywords=[],
+            )
+        tree.body.append(
+            ast.Assign(
+                targets=[ast.Name(id=variable_name, ctx=ast.Store())],
+                value=value,
+            )
+        )
+        receivers[parent_class] = variable_name
+        return variable_name
+
     first_api = chain["apis"][0]
     current_args = build_args(first_api)
     materialize_args(current_args)
@@ -701,6 +737,8 @@ def chain_to_source(chain, module_name):
     if first_api[1].endswith(".__init__"):
         current_result = "obj0"
         current_receiver = current_result
+        receiver_counter = 1
+        receivers[first_api[1].rsplit(".", 1)[0]] = current_receiver
         first_func = ast.Attribute(
             value=ast.Name(id=module_name, ctx=ast.Load()),
             attr=first_api[1].rsplit(".", 1)[0],
@@ -725,15 +763,12 @@ def chain_to_source(chain, module_name):
 
     for case_type, link in chain["steps"]:
         target = link["target"]
+        target_desc = get_api(target)
 
         if case_type == 1:
             source_result = ast.Name(id=current_result, ctx=ast.Load())
             if link.get("unpack_return", False):
                 call_args = [ast.Starred(value=source_result, ctx=ast.Load())]
-                target_desc = next(
-                    api for api in all_apis
-                    if tuple(api["api_id"]) == tuple(target)
-                )
                 target_args = {
                     index: ast.Subscript(
                         value=ast.Name(id=current_result, ctx=ast.Load()),
@@ -759,12 +794,17 @@ def chain_to_source(chain, module_name):
             materialize_args(target_args)
             call_args = [target_args[index] for index in sorted(target_args)]
 
-        if case_type == 4:
+        target_parent = target_desc.get("parent_class")
+        if case_type == 4 or target_parent:
+            receiver = current_receiver
+            if receiver is None or case_type != 4:
+                receiver = get_receiver(target_parent or link["parent_class"])
             target_func = ast.Attribute(
-                value=ast.Name(id=current_receiver, ctx=ast.Load()),
+                value=ast.Name(id=receiver, ctx=ast.Load()),
                 attr=target[1].rsplit(".", 1)[-1],
                 ctx=ast.Load(),
             )
+            current_receiver = receiver
         else:
             target_func = ast.Attribute(
                 value=ast.Name(id=module_name, ctx=ast.Load()),
