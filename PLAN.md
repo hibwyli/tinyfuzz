@@ -1,6 +1,7 @@
 # Todo
-4.3.3 , harness generators
-From chain to code generator
+
+Combine with atheris . 
+Check output of atheris with coverage then choose another . 
 
 
 # Question

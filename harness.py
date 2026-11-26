@@ -73,14 +73,14 @@ result0 = ipaddress._split_optional_netmask(fuzz_input)
 
 # Chain 12
 import ipaddress
-arg0 = -313
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 
 ===
 
 # Chain 13
 import ipaddress
-arg0 = -203
+arg0 = 0
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 
 ===
@@ -135,7 +135,7 @@ obj0 = ipaddress.IPv4Interface(fuzz_input)
 
 # Chain 22
 import ipaddress
-arg0 = IPv6Interface('::3/128')
+arg0 = IPv6Interface('::4/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 
@@ -143,7 +143,7 @@ result0 = obj0.__eq__(fuzz_input)
 
 # Chain 23
 import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = 'bogus'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 
@@ -175,7 +175,7 @@ obj0 = ipaddress.IPv4Network(fuzz_input)
 
 # Chain 28
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = '10.1.1.0/24'
 obj0 = ipaddress.IPv4Network(arg0, fuzz_input)
 
 ===
@@ -206,7 +206,7 @@ obj0 = ipaddress.IPv6Address(fuzz_input)
 
 # Chain 33
 import ipaddress
-arg0 = IPv6Address('::')
+arg0 = IPv6Address('::4')
 obj0 = ipaddress.IPv6Address(arg0)
 result0 = obj0.__eq__(fuzz_input)
 
@@ -214,7 +214,7 @@ result0 = obj0.__eq__(fuzz_input)
 
 # Chain 34
 import ipaddress
-arg0 = IPv6Address('::4')
+arg0 = 1
 obj0 = ipaddress.IPv6Address(arg0)
 result0 = obj0.__eq__(fuzz_input)
 
@@ -246,7 +246,7 @@ obj0 = ipaddress.IPv6Interface(fuzz_input)
 
 # Chain 39
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 'camelot'
 obj0 = ipaddress.IPv6Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 
@@ -254,7 +254,7 @@ result0 = obj0.__eq__(fuzz_input)
 
 # Chain 40
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 2
 obj0 = ipaddress.IPv6Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 
@@ -286,7 +286,7 @@ obj0 = ipaddress.IPv6Network(fuzz_input)
 
 # Chain 45
 import ipaddress
-arg0 = "l)Fb>*'&0[SXxh#csd@q\t/."
+arg0 = (-722,)
 obj0 = ipaddress.IPv6Network(arg0, fuzz_input)
 
 ===
@@ -341,12 +341,28 @@ result1 = obj0.__contains__(result0)
 # Chain 52
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.address_exclude(result0)
+
+===
+
+# Chain 53
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Address()
+result1 = obj0.__init__(result0)
+
+===
+
+# Chain 54
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
 
 ===
 
-# Chain 53
+# Chain 55
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
@@ -354,26 +370,10 @@ result1 = obj0.__lt__(result0)
 
 ===
 
-# Chain 54
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__init__(result0)
-
-===
-
-# Chain 55
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__eq__(result0)
-
-===
-
 # Chain 56
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -382,22 +382,22 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 58
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.address_exclude(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 59
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Address()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__init__(result0)
 
 ===
@@ -405,55 +405,55 @@ result1 = obj0.__init__(result0)
 # Chain 60
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
-result1 = ipaddress.summarize_address_range(result0, arg0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 61
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-arg0 = IPv4Address('0.0.0.5')
-result1 = ipaddress.summarize_address_range(arg0, result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 62
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-result1 = ipaddress.get_mixed_type_key(result0)
+arg0 = IPv4Address('0.0.0.5')
+result1 = ipaddress.summarize_address_range(result0, arg0)
 
 ===
 
 # Chain 63
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__eq__(result0)
+arg0 = IPv4Address('0.0.0.1')
+result1 = ipaddress.summarize_address_range(arg0, result0)
 
 ===
 
 # Chain 64
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
+result1 = ipaddress.get_mixed_type_key(result0)
 
 ===
 
 # Chain 65
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 66
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -461,14 +461,14 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 68
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
+obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -476,44 +476,12 @@ result1 = obj0.__eq__(result0)
 # Chain 69
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__contains__(result0)
 
 ===
 
 # Chain 70
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__init__(result0)
-
-===
-
-# Chain 71
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 72
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 73
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 74
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
@@ -521,7 +489,7 @@ result1 = obj0.address_exclude(result0)
 
 ===
 
-# Chain 75
+# Chain 71
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Address()
@@ -529,19 +497,51 @@ result1 = obj0.__init__(result0)
 
 ===
 
+# Chain 72
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 73
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
+
+===
+
+# Chain 74
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 75
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
 # Chain 76
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 77
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__init__(result0)
 
 ===
 
@@ -595,12 +595,28 @@ result1 = obj0.__contains__(result0)
 # Chain 84
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.address_exclude(result0)
+
+===
+
+# Chain 85
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Address()
+result1 = obj0.__init__(result0)
+
+===
+
+# Chain 86
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
 
 ===
 
-# Chain 85
+# Chain 87
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
@@ -608,26 +624,10 @@ result1 = obj0.__lt__(result0)
 
 ===
 
-# Chain 86
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__init__(result0)
-
-===
-
-# Chain 87
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__eq__(result0)
-
-===
-
 # Chain 88
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -636,22 +636,22 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 90
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.address_exclude(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 91
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Address()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__init__(result0)
 
 ===
@@ -659,12 +659,28 @@ result1 = obj0.__init__(result0)
 # Chain 92
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-arg0 = IPv4Address('0.0.0.5')
-result1 = ipaddress.summarize_address_range(result0, arg0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 93
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
+
+===
+
+# Chain 94
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+arg0 = IPv4Address('0.0.0.3')
+result1 = ipaddress.summarize_address_range(result0, arg0)
+
+===
+
+# Chain 95
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 arg0 = IPv4Address('0.0.0.4')
@@ -672,42 +688,26 @@ result1 = ipaddress.summarize_address_range(arg0, result0)
 
 ===
 
-# Chain 94
+# Chain 96
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 result1 = ipaddress.get_mixed_type_key(result0)
 
 ===
 
-# Chain 95
+# Chain 97
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 96
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 97
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 98
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -715,14 +715,14 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 100
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
+obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -730,44 +730,12 @@ result1 = obj0.__eq__(result0)
 # Chain 101
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__contains__(result0)
 
 ===
 
 # Chain 102
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__init__(result0)
-
-===
-
-# Chain 103
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 104
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 105
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 106
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
@@ -775,7 +743,7 @@ result1 = obj0.address_exclude(result0)
 
 ===
 
-# Chain 107
+# Chain 103
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Address()
@@ -783,19 +751,51 @@ result1 = obj0.__init__(result0)
 
 ===
 
+# Chain 104
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 105
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
+
+===
+
+# Chain 106
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 107
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
 # Chain 108
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 109
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__init__(result0)
 
 ===
 
@@ -849,12 +849,28 @@ result1 = obj0.__contains__(result0)
 # Chain 116
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.address_exclude(result0)
+
+===
+
+# Chain 117
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Address()
+result1 = obj0.__init__(result0)
+
+===
+
+# Chain 118
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
 
 ===
 
-# Chain 117
+# Chain 119
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
@@ -862,26 +878,10 @@ result1 = obj0.__lt__(result0)
 
 ===
 
-# Chain 118
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__init__(result0)
-
-===
-
-# Chain 119
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__eq__(result0)
-
-===
-
 # Chain 120
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -890,22 +890,22 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 122
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.address_exclude(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 123
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Address()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__init__(result0)
 
 ===
@@ -913,55 +913,55 @@ result1 = obj0.__init__(result0)
 # Chain 124
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-arg0 = IPv4Address('0.0.0.4')
-result1 = ipaddress.summarize_address_range(result0, arg0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 125
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-arg0 = IPv4Address('0.0.0.0')
-result1 = ipaddress.summarize_address_range(arg0, result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 126
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-result1 = ipaddress.get_mixed_type_key(result0)
+arg0 = IPv4Address('1.1.1.1')
+result1 = ipaddress.summarize_address_range(result0, arg0)
 
 ===
 
 # Chain 127
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__eq__(result0)
+arg0 = IPv4Address('1.1.1.0')
+result1 = ipaddress.summarize_address_range(arg0, result0)
 
 ===
 
 # Chain 128
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
+result1 = ipaddress.get_mixed_type_key(result0)
 
 ===
 
 # Chain 129
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 130
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -969,14 +969,14 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 132
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
+obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -984,44 +984,12 @@ result1 = obj0.__eq__(result0)
 # Chain 133
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__contains__(result0)
 
 ===
 
 # Chain 134
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__init__(result0)
-
-===
-
-# Chain 135
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 136
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 137
-import ipaddress
-result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 138
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
@@ -1029,7 +997,7 @@ result1 = obj0.address_exclude(result0)
 
 ===
 
-# Chain 139
+# Chain 135
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
 obj0 = ipaddress.IPv4Address()
@@ -1037,19 +1005,51 @@ result1 = obj0.__init__(result0)
 
 ===
 
+# Chain 136
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 137
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
+
+===
+
+# Chain 138
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 139
+import ipaddress
+result0 = ipaddress.ip_address(fuzz_input)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
 # Chain 140
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 141
 import ipaddress
 result0 = ipaddress.ip_address(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__init__(result0)
 
 ===
 
@@ -1198,39 +1198,39 @@ result1 = obj0.overlaps(result0)
 # Chain 160
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-result1 = ipaddress.get_mixed_type_key(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 161
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 162
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
+result1 = ipaddress.get_mixed_type_key(result0)
 
 ===
 
 # Chain 163
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 164
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -1238,7 +1238,7 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -1246,7 +1246,7 @@ result1 = obj0.__contains__(result0)
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.address_exclude(result0)
+result1 = obj0.__eq__(result0)
 
 ===
 
@@ -1254,29 +1254,45 @@ result1 = obj0.address_exclude(result0)
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.compare_networks(result0)
+result1 = obj0.__contains__(result0)
 
 ===
 
 # Chain 168
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::1/128')
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0._is_subnet_of(result0, arg0)
+result1 = obj0.address_exclude(result0)
 
 ===
 
 # Chain 169
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::2/128')
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.compare_networks(result0)
+
+===
+
+# Chain 170
+import ipaddress
+result0 = ipaddress.ip_network(fuzz_input)
+arg0 = IPv4Network('10.1.1.0/24')
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0._is_subnet_of(result0, arg0)
+
+===
+
+# Chain 171
+import ipaddress
+result0 = ipaddress.ip_network(fuzz_input)
+arg0 = IPv4Network('10.1.1.5/32')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(arg0, result0)
 
 ===
 
-# Chain 170
+# Chain 172
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
@@ -1284,7 +1300,7 @@ result1 = obj0.subnet_of(result0)
 
 ===
 
-# Chain 171
+# Chain 173
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
@@ -1292,26 +1308,10 @@ result1 = obj0.supernet_of(result0)
 
 ===
 
-# Chain 172
-import ipaddress
-result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 173
-import ipaddress
-result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
-
-===
-
 # Chain 174
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv6Address()
+obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -1319,32 +1319,32 @@ result1 = obj0.__eq__(result0)
 # Chain 175
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 176
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 177
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 178
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -1358,7 +1358,7 @@ result1 = ipaddress._split_optional_netmask(result0)
 # Chain 180
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
+arg0 = IPv4Address('0.0.0.0')
 result1 = ipaddress.summarize_address_range(result0, arg0)
 
 ===
@@ -1366,7 +1366,7 @@ result1 = ipaddress.summarize_address_range(result0, arg0)
 # Chain 181
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
+arg0 = IPv4Address('0.0.0.2')
 result1 = ipaddress.summarize_address_range(arg0, result0)
 
 ===
@@ -1374,7 +1374,7 @@ result1 = ipaddress.summarize_address_range(arg0, result0)
 # Chain 182
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Interface('::1/128')
+arg0 = IPv6Interface('::4/128')
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0, arg0)
 
@@ -1406,7 +1406,7 @@ result1 = ipaddress._split_optional_netmask(fuzz_input)
 # Chain 186
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
+arg0 = IPv4Address('0.0.0.0')
 result1 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -1414,7 +1414,7 @@ result1 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 187
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.5')
+arg0 = IPv4Address('0.0.0.3')
 result1 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -1429,7 +1429,7 @@ result1 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 189
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Interface('::1/128')
+arg0 = 2
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(fuzz_input, arg0)
 
@@ -1502,7 +1502,7 @@ result1 = obj0.compare_networks(fuzz_input)
 # Chain 198
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::2/128')
+arg0 = IPv6Network('::1/128')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(fuzz_input, arg0)
 
@@ -1511,7 +1511,7 @@ result1 = obj0._is_subnet_of(fuzz_input, arg0)
 # Chain 199
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::3/128')
+arg0 = IPv6Network('::5/128')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(arg0, fuzz_input)
 
@@ -1726,39 +1726,39 @@ result1 = obj0.overlaps(result0)
 # Chain 226
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-result1 = ipaddress.get_mixed_type_key(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 227
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 228
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
+result1 = ipaddress.get_mixed_type_key(result0)
 
 ===
 
 # Chain 229
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 230
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -1766,7 +1766,7 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -1774,7 +1774,7 @@ result1 = obj0.__contains__(result0)
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.address_exclude(result0)
+result1 = obj0.__eq__(result0)
 
 ===
 
@@ -1782,29 +1782,45 @@ result1 = obj0.address_exclude(result0)
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.compare_networks(result0)
+result1 = obj0.__contains__(result0)
 
 ===
 
 # Chain 234
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::2/128')
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0._is_subnet_of(result0, arg0)
+result1 = obj0.address_exclude(result0)
 
 ===
 
 # Chain 235
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::5/128')
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.compare_networks(result0)
+
+===
+
+# Chain 236
+import ipaddress
+result0 = ipaddress.ip_network(fuzz_input)
+arg0 = IPv6Network('::1/128')
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0._is_subnet_of(result0, arg0)
+
+===
+
+# Chain 237
+import ipaddress
+result0 = ipaddress.ip_network(fuzz_input)
+arg0 = IPv6Network('::2/128')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(arg0, result0)
 
 ===
 
-# Chain 236
+# Chain 238
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
@@ -1812,7 +1828,7 @@ result1 = obj0.subnet_of(result0)
 
 ===
 
-# Chain 237
+# Chain 239
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
@@ -1820,26 +1836,10 @@ result1 = obj0.supernet_of(result0)
 
 ===
 
-# Chain 238
-import ipaddress
-result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 239
-import ipaddress
-result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
-
-===
-
 # Chain 240
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv6Address()
+obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -1847,32 +1847,32 @@ result1 = obj0.__eq__(result0)
 # Chain 241
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 242
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 243
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 244
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -1886,7 +1886,7 @@ result1 = ipaddress._split_optional_netmask(result0)
 # Chain 246
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.1')
+arg0 = IPv4Address('0.0.0.4')
 result1 = ipaddress.summarize_address_range(result0, arg0)
 
 ===
@@ -1894,7 +1894,7 @@ result1 = ipaddress.summarize_address_range(result0, arg0)
 # Chain 247
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.2')
+arg0 = IPv4Address('0.0.0.4')
 result1 = ipaddress.summarize_address_range(arg0, result0)
 
 ===
@@ -1902,7 +1902,7 @@ result1 = ipaddress.summarize_address_range(arg0, result0)
 # Chain 248
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Interface('::5/128')
+arg0 = IPv6Interface('::1/128')
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0, arg0)
 
@@ -1934,7 +1934,7 @@ result1 = ipaddress._split_optional_netmask(fuzz_input)
 # Chain 252
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.0')
+arg0 = IPv4Address('0.0.0.3')
 result1 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -1942,7 +1942,7 @@ result1 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 253
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv4Address('0.0.0.1')
+arg0 = IPv4Address('1.1.1.0')
 result1 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -1957,7 +1957,7 @@ result1 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 255
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Interface('::/128')
+arg0 = '::1%scope'
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(fuzz_input, arg0)
 
@@ -2030,7 +2030,7 @@ result1 = obj0.compare_networks(fuzz_input)
 # Chain 264
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::5/128')
+arg0 = IPv4Network('10.1.1.0/25')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(fuzz_input, arg0)
 
@@ -2039,7 +2039,7 @@ result1 = obj0._is_subnet_of(fuzz_input, arg0)
 # Chain 265
 import ipaddress
 result0 = ipaddress.ip_network(fuzz_input)
-arg0 = IPv6Network('::4/128')
+arg0 = IPv6Network('::1/128')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(arg0, fuzz_input)
 
@@ -2111,7 +2111,7 @@ result1 = obj0.__lt__(fuzz_input)
 
 # Chain 274
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = '10.1.1.0/24'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 result1 = ipaddress.get_mixed_type_key(result0)
 
@@ -2119,7 +2119,7 @@ result1 = ipaddress.get_mixed_type_key(result0)
 
 # Chain 275
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = IPv4Network('0.0.0.4/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__eq__(result0)
@@ -2128,7 +2128,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 276
 import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
+arg0 = IPv4Network('0.0.0.2/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__lt__(result0)
@@ -2137,7 +2137,7 @@ result1 = obj0.__lt__(result0)
 
 # Chain 277
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = IPv4Network('0.0.0.2/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__lt__(result0)
@@ -2146,7 +2146,7 @@ result1 = obj0.__lt__(result0)
 
 # Chain 278
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = '1.1.1.1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__eq__(result0)
@@ -2155,7 +2155,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 279
 import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
+arg0 = IPv4Network('0.0.0.0/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__contains__(result0)
@@ -2164,7 +2164,7 @@ result1 = obj0.__contains__(result0)
 
 # Chain 280
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv4Network('0.0.0.0/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.address_exclude(result0)
@@ -2173,7 +2173,7 @@ result1 = obj0.address_exclude(result0)
 
 # Chain 281
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = '::1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.compare_networks(result0)
@@ -2182,7 +2182,7 @@ result1 = obj0.compare_networks(result0)
 
 # Chain 282
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = IPv4Network('0.0.0.5/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.subnet_of(result0)
@@ -2191,7 +2191,7 @@ result1 = obj0.subnet_of(result0)
 
 # Chain 283
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.supernet_of(result0)
@@ -2200,7 +2200,7 @@ result1 = obj0.supernet_of(result0)
 
 # Chain 284
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = '1.1.1.1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
@@ -2209,7 +2209,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 285
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = 'camelot'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__lt__(result0)
@@ -2218,7 +2218,7 @@ result1 = obj0.__lt__(result0)
 
 # Chain 286
 import ipaddress
-arg0 = IPv4Network('0.0.0.4/32')
+arg0 = '10.1.1.0/26'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
@@ -2227,7 +2227,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 287
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = '::1%scope'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__eq__(result0)
@@ -2236,7 +2236,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 288
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = '1.1.1.1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__lt__(result0)
@@ -2245,7 +2245,7 @@ result1 = obj0.__lt__(result0)
 
 # Chain 289
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 result1 = ipaddress._split_optional_netmask(result0)
 
@@ -2253,7 +2253,7 @@ result1 = ipaddress._split_optional_netmask(result0)
 
 # Chain 290
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = '10.2.1.0/24'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0)
@@ -2262,7 +2262,7 @@ result1 = obj0._split_addr_prefix(result0)
 
 # Chain 291
 import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
+arg0 = '10.1.1.0/26'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.overlaps(result0)
@@ -2271,179 +2271,179 @@ result1 = obj0.overlaps(result0)
 
 # Chain 292
 import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-result1 = ipaddress.get_mixed_type_key(result0)
-
-===
-
-# Chain 293
-import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 294
-import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 295
-import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 296
-import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 297
-import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
-
-===
-
-# Chain 298
-import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.address_exclude(result0)
-
-===
-
-# Chain 299
-import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.compare_networks(result0)
-
-===
-
-# Chain 300
-import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv6Network('::5/128')
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0._is_subnet_of(result0, arg1)
-
-===
-
-# Chain 301
-import ipaddress
-arg0 = IPv4Network('0.0.0.4/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv6Network('::1/128')
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0._is_subnet_of(arg1, result0)
-
-===
-
-# Chain 302
-import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnet_of(result0)
-
-===
-
-# Chain 303
-import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet_of(result0)
-
-===
-
-# Chain 304
-import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 305
-import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 306
-import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress.IPv6Address()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 307
-import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__eq__(result0)
-
-===
-
-# Chain 308
-import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
-result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
-
-===
-
-# Chain 309
-import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = '10.1.1.0/24'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.subnets(result0)
 
 ===
 
-# Chain 310
+# Chain 293
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.supernet(result0)
 
 ===
 
-# Chain 311
+# Chain 294
+import ipaddress
+arg0 = IPv4Network('0.0.0.4/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+result1 = ipaddress.get_mixed_type_key(result0)
+
+===
+
+# Chain 295
+import ipaddress
+arg0 = '10.1.1.0/24'
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 296
+import ipaddress
+arg0 = '2001:db8::0/32'
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
+
+===
+
+# Chain 297
+import ipaddress
+arg0 = '1.1.1.1'
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__lt__(result0)
+
+===
+
+# Chain 298
+import ipaddress
+arg0 = IPv4Network('0.0.0.4/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 299
+import ipaddress
+arg0 = IPv4Network('0.0.0.4/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__contains__(result0)
+
+===
+
+# Chain 300
+import ipaddress
+arg0 = IPv4Network('0.0.0.2/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.address_exclude(result0)
+
+===
+
+# Chain 301
+import ipaddress
+arg0 = IPv4Network('0.0.0.3/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.compare_networks(result0)
+
+===
+
+# Chain 302
+import ipaddress
+arg0 = IPv4Network('0.0.0.3/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+arg1 = IPv4Network('10.1.1.0/25')
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0._is_subnet_of(result0, arg1)
+
+===
+
+# Chain 303
+import ipaddress
+arg0 = IPv4Network('0.0.0.4/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+arg1 = IPv6Network('::3/128')
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0._is_subnet_of(arg1, result0)
+
+===
+
+# Chain 304
+import ipaddress
+arg0 = '10.1.1.0/24'
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnet_of(result0)
+
+===
+
+# Chain 305
+import ipaddress
+arg0 = '2001:db8::0/32'
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet_of(result0)
+
+===
+
+# Chain 306
+import ipaddress
+arg0 = '10.2.1.0/24'
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 307
+import ipaddress
+arg0 = IPv4Network('0.0.0.1/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
+
+===
+
+# Chain 308
+import ipaddress
+arg0 = IPv4Network('0.0.0.4/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress.IPv6Address()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 309
 import ipaddress
 arg0 = IPv4Network('0.0.0.0/32')
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
+
+===
+
+# Chain 310
+import ipaddress
+arg0 = '10.2.1.0/24'
+result0 = ipaddress.ip_network(arg0, fuzz_input)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
+
+===
+
+# Chain 311
+import ipaddress
+arg0 = IPv4Network('0.0.0.4/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 result1 = ipaddress._split_optional_netmask(result0)
 
@@ -2451,27 +2451,27 @@ result1 = ipaddress._split_optional_netmask(result0)
 
 # Chain 312
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = IPv4Network('0.0.0.0/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv4Address('0.0.0.1')
+arg1 = IPv4Address('0.0.0.3')
 result1 = ipaddress.summarize_address_range(result0, arg1)
 
 ===
 
 # Chain 313
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv4Network('0.0.0.0/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv4Address('0.0.0.3')
+arg1 = IPv4Address('1.1.1.1')
 result1 = ipaddress.summarize_address_range(arg1, result0)
 
 ===
 
 # Chain 314
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = IPv4Network('0.0.0.1/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv6Interface('::/128')
+arg1 = IPv6Interface('::3/128')
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0, arg1)
 
@@ -2488,16 +2488,16 @@ result1 = obj0.overlaps(result0)
 
 # Chain 316
 import ipaddress
-arg0 = IPv4Network('0.0.0.4/32')
+arg0 = IPv4Network('0.0.0.5/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = IPv4Network('0.0.0.4/32')
+obj0 = IPv4Network('0.0.0.5/32')
 result1 = obj0.__init__(result0)
 
 ===
 
 # Chain 317
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = 'camelot'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 result1 = ipaddress._split_optional_netmask(arg0)
 
@@ -2505,25 +2505,25 @@ result1 = ipaddress._split_optional_netmask(arg0)
 
 # Chain 318
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = '10.1.1.0/26'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv4Address('0.0.0.5')
+arg1 = IPv4Address('1.1.1.3')
 result1 = ipaddress.summarize_address_range(arg0, arg1)
 
 ===
 
 # Chain 319
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv4Network('0.0.0.2/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv4Address('0.0.0.2')
+arg1 = IPv4Address('1.1.1.0')
 result1 = ipaddress.summarize_address_range(arg1, arg0)
 
 ===
 
 # Chain 320
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 result1 = ipaddress.get_mixed_type_key(arg0)
 
@@ -2531,9 +2531,9 @@ result1 = ipaddress.get_mixed_type_key(arg0)
 
 # Chain 321
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = '10.1.1.0/24'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv6Interface('::1/128')
+arg1 = '::1%scope'
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(arg0, arg1)
 
@@ -2541,7 +2541,7 @@ result1 = obj0._split_addr_prefix(arg0, arg1)
 
 # Chain 322
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__eq__(arg0)
@@ -2550,7 +2550,7 @@ result1 = obj0.__eq__(arg0)
 
 # Chain 323
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = 'camelot'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__lt__(arg0)
@@ -2568,7 +2568,7 @@ result1 = obj0.__lt__(arg0)
 
 # Chain 325
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = 'camelot'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__eq__(arg0)
@@ -2577,7 +2577,7 @@ result1 = obj0.__eq__(arg0)
 
 # Chain 326
 import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
+arg0 = IPv4Network('0.0.0.2/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__contains__(arg0)
@@ -2586,7 +2586,7 @@ result1 = obj0.__contains__(arg0)
 
 # Chain 327
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.overlaps(arg0)
@@ -2595,7 +2595,7 @@ result1 = obj0.overlaps(arg0)
 
 # Chain 328
 import ipaddress
-arg0 = IPv4Network('0.0.0.2/32')
+arg0 = IPv4Network('0.0.0.1/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.address_exclude(arg0)
@@ -2604,7 +2604,7 @@ result1 = obj0.address_exclude(arg0)
 
 # Chain 329
 import ipaddress
-arg0 = IPv4Network('0.0.0.4/32')
+arg0 = '::1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.compare_networks(arg0)
@@ -2613,9 +2613,9 @@ result1 = obj0.compare_networks(arg0)
 
 # Chain 330
 import ipaddress
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = '1.1.1.1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-arg1 = IPv6Network('::2/128')
+arg1 = IPv6Network('::3/128')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(arg0, arg1)
 
@@ -2623,7 +2623,7 @@ result1 = obj0._is_subnet_of(arg0, arg1)
 
 # Chain 331
 import ipaddress
-arg0 = IPv4Network('0.0.0.4/32')
+arg0 = IPv4Network('0.0.0.1/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 arg1 = IPv6Network('::/128')
 obj0 = ipaddress._BaseNetwork()
@@ -2633,7 +2633,7 @@ result1 = obj0._is_subnet_of(arg1, arg0)
 
 # Chain 332
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = '::1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.subnet_of(arg0)
@@ -2642,7 +2642,7 @@ result1 = obj0.subnet_of(arg0)
 
 # Chain 333
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.supernet_of(arg0)
@@ -2651,7 +2651,7 @@ result1 = obj0.supernet_of(arg0)
 
 # Chain 334
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = '2001:db8::0/32'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(arg0)
@@ -2660,7 +2660,7 @@ result1 = obj0.__eq__(arg0)
 
 # Chain 335
 import ipaddress
-arg0 = IPv4Network('0.0.0.0/32')
+arg0 = '::1%scope'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__lt__(arg0)
@@ -2669,16 +2669,16 @@ result1 = obj0.__lt__(arg0)
 
 # Chain 336
 import ipaddress
-arg0 = IPv4Network('0.0.0.4/32')
+arg0 = '::1'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
-obj0 = IPv4Network('0.0.0.4/32')
+obj0 = ipaddress.IPv4Network()
 result1 = obj0.__init__(arg0)
 
 ===
 
 # Chain 337
 import ipaddress
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv4Network('0.0.0.2/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(arg0)
@@ -2687,7 +2687,7 @@ result1 = obj0.__eq__(arg0)
 
 # Chain 338
 import ipaddress
-arg0 = IPv4Network('0.0.0.3/32')
+arg0 = 'camelot'
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__eq__(arg0)
@@ -2696,7 +2696,7 @@ result1 = obj0.__eq__(arg0)
 
 # Chain 339
 import ipaddress
-arg0 = IPv4Network('0.0.0.4/32')
+arg0 = IPv4Network('0.0.0.3/32')
 result0 = ipaddress.ip_network(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__lt__(arg0)
@@ -2824,55 +2824,55 @@ result1 = obj0.__lt__(result0)
 # Chain 355
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-result1 = ipaddress._split_optional_netmask(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 356
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-result1 = ipaddress.get_mixed_type_key(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 357
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-arg0 = IPv6Interface('::3/128')
-obj0 = ipaddress._IPAddressBase()
-result1 = obj0._split_addr_prefix(result0, arg0)
+result1 = ipaddress._split_optional_netmask(result0)
 
 ===
 
 # Chain 358
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__eq__(result0)
+result1 = ipaddress.get_mixed_type_key(result0)
 
 ===
 
 # Chain 359
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
+arg0 = '::1%scope'
+obj0 = ipaddress._IPAddressBase()
+result1 = obj0._split_addr_prefix(result0, arg0)
 
 ===
 
 # Chain 360
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 361
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -2880,23 +2880,23 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 363
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__init__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 364
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__contains__(result0)
 
 ===
 
@@ -2904,14 +2904,14 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
+result1 = obj0.__init__(result0)
 
 ===
 
 # Chain 366
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv6Address()
+obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -2919,15 +2919,15 @@ result1 = obj0.__eq__(result0)
 # Chain 367
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__init__(result0)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 368
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -2936,23 +2936,23 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
 obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
+result1 = obj0.__init__(result0)
 
 ===
 
 # Chain 370
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 371
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -2973,7 +2973,7 @@ result1 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 374
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-arg0 = IPv6Interface('::/128')
+arg0 = '::1%scope'
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(fuzz_input, arg0)
 
@@ -3196,55 +3196,55 @@ result1 = obj0.__lt__(result0)
 # Chain 402
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-result1 = ipaddress._split_optional_netmask(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 403
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-result1 = ipaddress.get_mixed_type_key(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 404
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-arg0 = IPv6Interface('::4/128')
-obj0 = ipaddress._IPAddressBase()
-result1 = obj0._split_addr_prefix(result0, arg0)
+result1 = ipaddress._split_optional_netmask(result0)
 
 ===
 
 # Chain 405
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__eq__(result0)
+result1 = ipaddress.get_mixed_type_key(result0)
 
 ===
 
 # Chain 406
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseAddress()
-result1 = obj0.__lt__(result0)
+arg0 = IPv6Interface('::5/128')
+obj0 = ipaddress._IPAddressBase()
+result1 = obj0._split_addr_prefix(result0, arg0)
 
 ===
 
 # Chain 407
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__lt__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 408
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseAddress()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -3252,23 +3252,23 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
 obj0 = ipaddress._BaseNetwork()
-result1 = obj0.__contains__(result0)
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 410
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__init__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 411
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__eq__(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.__contains__(result0)
 
 ===
 
@@ -3276,14 +3276,14 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
-result1 = obj0.__lt__(result0)
+result1 = obj0.__init__(result0)
 
 ===
 
 # Chain 413
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv6Address()
+obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -3291,15 +3291,15 @@ result1 = obj0.__eq__(result0)
 # Chain 414
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__init__(result0)
+obj0 = ipaddress.IPv4Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
 # Chain 415
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress.IPv6Interface()
+obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
 
 ===
@@ -3308,23 +3308,23 @@ result1 = obj0.__eq__(result0)
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
 obj0 = ipaddress.IPv6Interface()
-result1 = obj0.__lt__(result0)
+result1 = obj0.__init__(result0)
 
 ===
 
 # Chain 417
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__eq__(result0)
 
 ===
 
 # Chain 418
 import ipaddress
 result0 = ipaddress.ip_interface(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
+obj0 = ipaddress.IPv6Interface()
+result1 = obj0.__lt__(result0)
 
 ===
 
@@ -3504,36 +3504,52 @@ result1 = obj0.__init__(result0)
 # Chain 441
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
-result1 = ipaddress.ip_address(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 442
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
-result1 = ipaddress.ip_interface(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 443
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
-arg0 = 278
-obj0 = ipaddress._IPAddressBase()
-result1 = obj0._check_packed_address(result0, arg0)
+result1 = ipaddress.ip_address(result0)
 
 ===
 
 # Chain 444
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
-arg0 = IPv6Interface('::4/128')
+result1 = ipaddress.ip_interface(result0)
+
+===
+
+# Chain 445
+import ipaddress
+result0 = ipaddress.v4_int_to_packed(fuzz_input)
+arg0 = 4
+obj0 = ipaddress._IPAddressBase()
+result1 = obj0._check_packed_address(result0, arg0)
+
+===
+
+# Chain 446
+import ipaddress
+result0 = ipaddress.v4_int_to_packed(fuzz_input)
+arg0 = 1
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0, arg0)
 
 ===
 
-# Chain 445
+# Chain 447
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv4Address()
@@ -3541,7 +3557,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 446
+# Chain 448
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
@@ -3549,7 +3565,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 447
+# Chain 449
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv4Network()
@@ -3557,7 +3573,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 448
+# Chain 450
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv6Address()
@@ -3565,7 +3581,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 449
+# Chain 451
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv6Interface()
@@ -3573,27 +3589,11 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 450
+# Chain 452
 import ipaddress
 result0 = ipaddress.v4_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv6Network()
 result1 = obj0.__init__(result0)
-
-===
-
-# Chain 451
-import ipaddress
-result0 = ipaddress.v4_int_to_packed(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
-
-===
-
-# Chain 452
-import ipaddress
-result0 = ipaddress.v4_int_to_packed(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
 
 ===
 
@@ -3654,36 +3654,52 @@ result1 = obj0.__init__(result0)
 # Chain 460
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
-result1 = ipaddress.ip_address(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.subnets(result0)
 
 ===
 
 # Chain 461
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
-result1 = ipaddress.ip_interface(result0)
+obj0 = ipaddress._BaseNetwork()
+result1 = obj0.supernet(result0)
 
 ===
 
 # Chain 462
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
-arg0 = 863
-obj0 = ipaddress._IPAddressBase()
-result1 = obj0._check_packed_address(result0, arg0)
+result1 = ipaddress.ip_address(result0)
 
 ===
 
 # Chain 463
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
-arg0 = IPv6Interface('::4/128')
+result1 = ipaddress.ip_interface(result0)
+
+===
+
+# Chain 464
+import ipaddress
+result0 = ipaddress.v6_int_to_packed(fuzz_input)
+arg0 = 528
+obj0 = ipaddress._IPAddressBase()
+result1 = obj0._check_packed_address(result0, arg0)
+
+===
+
+# Chain 465
+import ipaddress
+result0 = ipaddress.v6_int_to_packed(fuzz_input)
+arg0 = 2
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0, arg0)
 
 ===
 
-# Chain 464
+# Chain 466
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv4Address()
@@ -3691,7 +3707,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 465
+# Chain 467
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv4Interface()
@@ -3699,7 +3715,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 466
+# Chain 468
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv4Network()
@@ -3707,7 +3723,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 467
+# Chain 469
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv6Address()
@@ -3715,7 +3731,7 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 468
+# Chain 470
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv6Interface()
@@ -3723,27 +3739,11 @@ result1 = obj0.__init__(result0)
 
 ===
 
-# Chain 469
+# Chain 471
 import ipaddress
 result0 = ipaddress.v6_int_to_packed(fuzz_input)
 obj0 = ipaddress.IPv6Network()
 result1 = obj0.__init__(result0)
-
-===
-
-# Chain 470
-import ipaddress
-result0 = ipaddress.v6_int_to_packed(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.subnets(result0)
-
-===
-
-# Chain 471
-import ipaddress
-result0 = ipaddress.v6_int_to_packed(fuzz_input)
-obj0 = ipaddress._BaseNetwork()
-result1 = obj0.supernet(result0)
 
 ===
 
@@ -3864,7 +3864,7 @@ result1 = obj0.__eq__(result0)
 # Chain 487
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = [592.9996784007894, 169.98368422012936]
+arg0 = ['', "8Hzc yW2$Q>fk{!^=1W\x0cSRS'S?\x0br", '9hRE[fm6XJwhbt,aqvGB[[', '@"I,lQWn=?N57W_?LA|iP`\'G\\I(q^.W', '`Fmzjy$#']
 obj0 = ipaddress._BaseV6()
 result1 = obj0._compress_hextets(result0, arg0)
 
@@ -4015,7 +4015,7 @@ result1 = ipaddress.ip_network(fuzz_input)
 # Chain 506
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
+arg0 = IPv4Address('1.1.1.4')
 result1 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -4055,7 +4055,7 @@ result1 = obj0.compare_networks(fuzz_input)
 # Chain 511
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv6Network('::5/128')
+arg0 = IPv4Network('10.1.1.0/25')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(fuzz_input, arg0)
 
@@ -4064,7 +4064,7 @@ result1 = obj0._is_subnet_of(fuzz_input, arg0)
 # Chain 512
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv6Network('::3/128')
+arg0 = IPv6Network('::/128')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(arg0, fuzz_input)
 
@@ -4211,7 +4211,7 @@ result1 = obj0.__eq__(result0)
 # Chain 531
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = [-583, -715, 800]
+arg0 = [275, -726, -658, 995]
 obj0 = ipaddress._BaseV6()
 result1 = obj0._compress_hextets(result0, arg0)
 
@@ -4250,7 +4250,7 @@ result1 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 536
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv6Interface('::2/128')
+arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(fuzz_input, arg0)
 
@@ -4362,7 +4362,7 @@ result1 = ipaddress.ip_network(fuzz_input)
 # Chain 550
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv4Address('0.0.0.2')
+arg0 = IPv4Address('1.1.1.3')
 result1 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -4370,7 +4370,7 @@ result1 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 551
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv4Address('0.0.0.1')
+arg0 = IPv4Address('1.1.1.0')
 result1 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -4402,7 +4402,7 @@ result1 = obj0.compare_networks(fuzz_input)
 # Chain 555
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv6Network('::4/128')
+arg0 = IPv4Network('10.1.1.0/25')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(fuzz_input, arg0)
 
@@ -4411,7 +4411,7 @@ result1 = obj0._is_subnet_of(fuzz_input, arg0)
 # Chain 556
 import ipaddress
 result0 = ipaddress._split_optional_netmask(fuzz_input)
-arg0 = IPv6Network('::4/128')
+arg0 = IPv6Network('::1/128')
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0._is_subnet_of(arg0, fuzz_input)
 
@@ -4443,7 +4443,7 @@ result1 = obj0.__init__(fuzz_input)
 
 # Chain 560
 import ipaddress
-arg0 = -909
+arg0 = 467
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 result1 = ipaddress.ip_address(result0)
 
@@ -4451,7 +4451,7 @@ result1 = ipaddress.ip_address(result0)
 
 # Chain 561
 import ipaddress
-arg0 = -757
+arg0 = -161
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 result1 = ipaddress.v4_int_to_packed(result0)
 
@@ -4459,7 +4459,7 @@ result1 = ipaddress.v4_int_to_packed(result0)
 
 # Chain 562
 import ipaddress
-arg0 = -472
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 result1 = ipaddress.v6_int_to_packed(result0)
 
@@ -4467,7 +4467,7 @@ result1 = ipaddress.v6_int_to_packed(result0)
 
 # Chain 563
 import ipaddress
-arg0 = 854
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._check_int_address(result0)
@@ -4476,7 +4476,7 @@ result1 = obj0._check_int_address(result0)
 
 # Chain 564
 import ipaddress
-arg0 = 475
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._ip_int_from_prefix(result0)
@@ -4485,7 +4485,7 @@ result1 = obj0._ip_int_from_prefix(result0)
 
 # Chain 565
 import ipaddress
-arg0 = 708
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._prefix_from_ip_int(result0)
@@ -4494,7 +4494,7 @@ result1 = obj0._prefix_from_ip_int(result0)
 
 # Chain 566
 import ipaddress
-arg0 = 664
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._report_invalid_netmask(result0)
@@ -4503,7 +4503,7 @@ result1 = obj0._report_invalid_netmask(result0)
 
 # Chain 567
 import ipaddress
-arg0 = -830
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0)
@@ -4512,7 +4512,7 @@ result1 = obj0._split_addr_prefix(result0)
 
 # Chain 568
 import ipaddress
-arg0 = 475
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__eq__(result0)
@@ -4521,7 +4521,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 569
 import ipaddress
-arg0 = -271
+arg0 = 960
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__add__(result0)
@@ -4530,7 +4530,7 @@ result1 = obj0.__add__(result0)
 
 # Chain 570
 import ipaddress
-arg0 = 232
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__sub__(result0)
@@ -4539,7 +4539,7 @@ result1 = obj0.__sub__(result0)
 
 # Chain 571
 import ipaddress
-arg0 = -501
+arg0 = 528
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__getitem__(result0)
@@ -4548,7 +4548,7 @@ result1 = obj0.__getitem__(result0)
 
 # Chain 572
 import ipaddress
-arg0 = -981
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseV4()
 result1 = obj0._make_netmask(result0)
@@ -4557,7 +4557,7 @@ result1 = obj0._make_netmask(result0)
 
 # Chain 573
 import ipaddress
-arg0 = 458
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseV4()
 result1 = obj0._string_from_ip_int(result0)
@@ -4566,7 +4566,7 @@ result1 = obj0._string_from_ip_int(result0)
 
 # Chain 574
 import ipaddress
-arg0 = -656
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv4Address()
 result1 = obj0.__init__(result0)
@@ -4575,7 +4575,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 575
 import ipaddress
-arg0 = 370
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__init__(result0)
@@ -4584,7 +4584,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 576
 import ipaddress
-arg0 = 175
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
@@ -4593,7 +4593,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 577
 import ipaddress
-arg0 = 572
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseV6()
 result1 = obj0._make_netmask(result0)
@@ -4602,7 +4602,7 @@ result1 = obj0._make_netmask(result0)
 
 # Chain 578
 import ipaddress
-arg0 = 759
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseV6()
 result1 = obj0._string_from_ip_int(result0)
@@ -4611,7 +4611,7 @@ result1 = obj0._string_from_ip_int(result0)
 
 # Chain 579
 import ipaddress
-arg0 = -166
+arg0 = 567
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__init__(result0)
@@ -4620,7 +4620,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 580
 import ipaddress
-arg0 = -75
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
@@ -4629,7 +4629,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 581
 import ipaddress
-arg0 = -218
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__init__(result0)
@@ -4638,7 +4638,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 582
 import ipaddress
-arg0 = -994
+arg0 = -315
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__eq__(result0)
@@ -4647,7 +4647,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 583
 import ipaddress
-arg0 = -169
+arg0 = -267
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 result1 = ipaddress.ip_address(result0)
 
@@ -4655,7 +4655,7 @@ result1 = ipaddress.ip_address(result0)
 
 # Chain 584
 import ipaddress
-arg0 = -184
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 result1 = ipaddress.ip_network(result0)
 
@@ -4663,7 +4663,7 @@ result1 = ipaddress.ip_network(result0)
 
 # Chain 585
 import ipaddress
-arg0 = 230
+arg0 = 960
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 result1 = ipaddress.v4_int_to_packed(result0)
 
@@ -4671,7 +4671,7 @@ result1 = ipaddress.v4_int_to_packed(result0)
 
 # Chain 586
 import ipaddress
-arg0 = 69
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 result1 = ipaddress.v6_int_to_packed(result0)
 
@@ -4679,7 +4679,7 @@ result1 = ipaddress.v6_int_to_packed(result0)
 
 # Chain 587
 import ipaddress
-arg0 = -158
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._check_int_address(result0)
@@ -4688,9 +4688,9 @@ result1 = obj0._check_int_address(result0)
 
 # Chain 588
 import ipaddress
-arg0 = 101
+arg0 = 565
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = b'\xc5\xbbL\xe0\x989R\xa9_\x13'
+arg1 = b't<\xa2\x05\xf2\x03&3Zk[|\x1b'
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._check_packed_address(arg1, result0)
 
@@ -4698,9 +4698,9 @@ result1 = obj0._check_packed_address(arg1, result0)
 
 # Chain 589
 import ipaddress
-arg0 = 910
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = -290
+arg1 = 27
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._ip_int_from_prefix(result0, arg1)
 
@@ -4708,9 +4708,9 @@ result1 = obj0._ip_int_from_prefix(result0, arg1)
 
 # Chain 590
 import ipaddress
-arg0 = 790
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = -967
+arg1 = 4294868992
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._prefix_from_ip_int(result0, arg1)
 
@@ -4718,9 +4718,9 @@ result1 = obj0._prefix_from_ip_int(result0, arg1)
 
 # Chain 591
 import ipaddress
-arg0 = 942
+arg0 = -456
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = 'G3\rK TlIq=X~nf:G'
+arg1 = '6+-=EzSX'
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._report_invalid_netmask(result0, arg1)
 
@@ -4728,9 +4728,9 @@ result1 = obj0._report_invalid_netmask(result0, arg1)
 
 # Chain 592
 import ipaddress
-arg0 = -139
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = IPv6Interface('::1/128')
+arg1 = IPv6Interface('::3/128')
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0, arg1)
 
@@ -4738,7 +4738,7 @@ result1 = obj0._split_addr_prefix(result0, arg1)
 
 # Chain 593
 import ipaddress
-arg0 = -485
+arg0 = -454
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__eq__(result0)
@@ -4747,7 +4747,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 594
 import ipaddress
-arg0 = 956
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__add__(result0)
@@ -4756,7 +4756,7 @@ result1 = obj0.__add__(result0)
 
 # Chain 595
 import ipaddress
-arg0 = 428
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__sub__(result0)
@@ -4765,7 +4765,7 @@ result1 = obj0.__sub__(result0)
 
 # Chain 596
 import ipaddress
-arg0 = -571
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__getitem__(result0)
@@ -4774,7 +4774,7 @@ result1 = obj0.__getitem__(result0)
 
 # Chain 597
 import ipaddress
-arg0 = -299
+arg0 = -478
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.subnets(result0)
@@ -4783,7 +4783,7 @@ result1 = obj0.subnets(result0)
 
 # Chain 598
 import ipaddress
-arg0 = -68
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.subnets(result0)
@@ -4792,7 +4792,7 @@ result1 = obj0.subnets(result0)
 
 # Chain 599
 import ipaddress
-arg0 = 723
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.supernet(result0)
@@ -4801,7 +4801,7 @@ result1 = obj0.supernet(result0)
 
 # Chain 600
 import ipaddress
-arg0 = -415
+arg0 = 361
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.supernet(result0)
@@ -4810,9 +4810,9 @@ result1 = obj0.supernet(result0)
 
 # Chain 601
 import ipaddress
-arg0 = 207
+arg0 = -752
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = 561
+arg1 = -755
 obj0 = ipaddress._BaseV4()
 result1 = obj0._make_netmask(result0, arg1)
 
@@ -4820,9 +4820,9 @@ result1 = obj0._make_netmask(result0, arg1)
 
 # Chain 602
 import ipaddress
-arg0 = -168
+arg0 = 627
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = 968
+arg1 = 16843009
 obj0 = ipaddress._BaseV4()
 result1 = obj0._string_from_ip_int(result0, arg1)
 
@@ -4830,7 +4830,7 @@ result1 = obj0._string_from_ip_int(result0, arg1)
 
 # Chain 603
 import ipaddress
-arg0 = 705
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv4Address()
 result1 = obj0.__init__(result0)
@@ -4839,7 +4839,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 604
 import ipaddress
-arg0 = -706
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__init__(result0)
@@ -4848,7 +4848,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 605
 import ipaddress
-arg0 = -903
+arg0 = 123
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
@@ -4857,7 +4857,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 606
 import ipaddress
-arg0 = -48
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv4Network()
 result1 = obj0.__init__(result0)
@@ -4866,9 +4866,9 @@ result1 = obj0.__init__(result0)
 
 # Chain 607
 import ipaddress
-arg0 = 246
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
-arg1 = 698
+arg1 = 128
 obj0 = ipaddress._BaseV6()
 result1 = obj0._make_netmask(result0, arg1)
 
@@ -4876,7 +4876,7 @@ result1 = obj0._make_netmask(result0, arg1)
 
 # Chain 608
 import ipaddress
-arg0 = 213
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress._BaseV6()
 result1 = obj0._string_from_ip_int(result0)
@@ -4885,7 +4885,7 @@ result1 = obj0._string_from_ip_int(result0)
 
 # Chain 609
 import ipaddress
-arg0 = 845
+arg0 = -150
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__init__(result0)
@@ -4894,7 +4894,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 610
 import ipaddress
-arg0 = -952
+arg0 = 965
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
@@ -4903,7 +4903,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 611
 import ipaddress
-arg0 = 136
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__init__(result0)
@@ -4912,7 +4912,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 612
 import ipaddress
-arg0 = 389
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__eq__(result0)
@@ -4921,7 +4921,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 613
 import ipaddress
-arg0 = 167
+arg0 = 32
 result0 = ipaddress._count_righthand_zero_bits(fuzz_input, arg0)
 obj0 = ipaddress.IPv6Network()
 result1 = obj0.__init__(result0)
@@ -4930,7 +4930,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 614
 import ipaddress
-arg0 = -784
+arg0 = 4294967040
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 result1 = ipaddress.ip_address(result0)
 
@@ -4938,7 +4938,7 @@ result1 = ipaddress.ip_address(result0)
 
 # Chain 615
 import ipaddress
-arg0 = 635
+arg0 = 251723775
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 result1 = ipaddress.v4_int_to_packed(result0)
 
@@ -4946,7 +4946,7 @@ result1 = ipaddress.v4_int_to_packed(result0)
 
 # Chain 616
 import ipaddress
-arg0 = 408
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 result1 = ipaddress.v6_int_to_packed(result0)
 
@@ -4954,7 +4954,7 @@ result1 = ipaddress.v6_int_to_packed(result0)
 
 # Chain 617
 import ipaddress
-arg0 = 133
+arg0 = 4294967040
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._check_int_address(result0)
@@ -4963,7 +4963,7 @@ result1 = obj0._check_int_address(result0)
 
 # Chain 618
 import ipaddress
-arg0 = -676
+arg0 = 0
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._ip_int_from_prefix(result0)
@@ -4972,7 +4972,7 @@ result1 = obj0._ip_int_from_prefix(result0)
 
 # Chain 619
 import ipaddress
-arg0 = 23
+arg0 = 329
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._prefix_from_ip_int(result0)
@@ -4981,7 +4981,7 @@ result1 = obj0._prefix_from_ip_int(result0)
 
 # Chain 620
 import ipaddress
-arg0 = 867
+arg0 = -891
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._report_invalid_netmask(result0)
@@ -4990,7 +4990,7 @@ result1 = obj0._report_invalid_netmask(result0)
 
 # Chain 621
 import ipaddress
-arg0 = 135
+arg0 = -21
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0)
@@ -4999,7 +4999,7 @@ result1 = obj0._split_addr_prefix(result0)
 
 # Chain 622
 import ipaddress
-arg0 = 929
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__eq__(result0)
@@ -5008,7 +5008,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 623
 import ipaddress
-arg0 = -51
+arg0 = -584
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__add__(result0)
@@ -5017,7 +5017,7 @@ result1 = obj0.__add__(result0)
 
 # Chain 624
 import ipaddress
-arg0 = -533
+arg0 = 422
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__sub__(result0)
@@ -5026,7 +5026,7 @@ result1 = obj0.__sub__(result0)
 
 # Chain 625
 import ipaddress
-arg0 = -608
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__getitem__(result0)
@@ -5035,7 +5035,7 @@ result1 = obj0.__getitem__(result0)
 
 # Chain 626
 import ipaddress
-arg0 = -516
+arg0 = -487
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseV4()
 result1 = obj0._make_netmask(result0)
@@ -5044,7 +5044,7 @@ result1 = obj0._make_netmask(result0)
 
 # Chain 627
 import ipaddress
-arg0 = -467
+arg0 = 708
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseV4()
 result1 = obj0._string_from_ip_int(result0)
@@ -5053,7 +5053,7 @@ result1 = obj0._string_from_ip_int(result0)
 
 # Chain 628
 import ipaddress
-arg0 = 177
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Address()
 result1 = obj0.__init__(result0)
@@ -5062,7 +5062,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 629
 import ipaddress
-arg0 = 985
+arg0 = 508
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__init__(result0)
@@ -5071,7 +5071,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 630
 import ipaddress
-arg0 = 380
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
@@ -5080,7 +5080,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 631
 import ipaddress
-arg0 = 940
+arg0 = 4294868992
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseV6()
 result1 = obj0._make_netmask(result0)
@@ -5089,7 +5089,7 @@ result1 = obj0._make_netmask(result0)
 
 # Chain 632
 import ipaddress
-arg0 = 926
+arg0 = 0
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseV6()
 result1 = obj0._string_from_ip_int(result0)
@@ -5098,7 +5098,7 @@ result1 = obj0._string_from_ip_int(result0)
 
 # Chain 633
 import ipaddress
-arg0 = 312
+arg0 = 43
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__init__(result0)
@@ -5107,7 +5107,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 634
 import ipaddress
-arg0 = -742
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
@@ -5116,7 +5116,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 635
 import ipaddress
-arg0 = 508
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__init__(result0)
@@ -5125,7 +5125,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 636
 import ipaddress
-arg0 = 839
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__eq__(result0)
@@ -5134,7 +5134,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 637
 import ipaddress
-arg0 = -120
+arg0 = 4294868992
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 result1 = ipaddress.ip_address(result0)
 
@@ -5142,7 +5142,7 @@ result1 = ipaddress.ip_address(result0)
 
 # Chain 638
 import ipaddress
-arg0 = 381
+arg0 = 4043243520
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 result1 = ipaddress.ip_network(result0)
 
@@ -5150,7 +5150,7 @@ result1 = ipaddress.ip_network(result0)
 
 # Chain 639
 import ipaddress
-arg0 = -142
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 result1 = ipaddress.v4_int_to_packed(result0)
 
@@ -5158,7 +5158,7 @@ result1 = ipaddress.v4_int_to_packed(result0)
 
 # Chain 640
 import ipaddress
-arg0 = 462
+arg0 = 0
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 result1 = ipaddress.v6_int_to_packed(result0)
 
@@ -5166,7 +5166,7 @@ result1 = ipaddress.v6_int_to_packed(result0)
 
 # Chain 641
 import ipaddress
-arg0 = -372
+arg0 = -548
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._check_int_address(result0)
@@ -5175,9 +5175,9 @@ result1 = obj0._check_int_address(result0)
 
 # Chain 642
 import ipaddress
-arg0 = 695
+arg0 = 439
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = b'\xa5-\x16\x17\xbb\x83\xfa\xf8\x08Q\xce'
+arg1 = b'\xc9\x83\xe9D\xd4\xe2a\xfd:\xfc\xb9I\xacUj4\x80\x0f\xba&\x95\x82'
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._check_packed_address(arg1, result0)
 
@@ -5185,9 +5185,9 @@ result1 = obj0._check_packed_address(arg1, result0)
 
 # Chain 643
 import ipaddress
-arg0 = 705
+arg0 = 4294967040
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = -445
+arg1 = 724
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._ip_int_from_prefix(result0, arg1)
 
@@ -5195,9 +5195,9 @@ result1 = obj0._ip_int_from_prefix(result0, arg1)
 
 # Chain 644
 import ipaddress
-arg0 = -607
+arg0 = 164
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = -494
+arg1 = 195
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._prefix_from_ip_int(result0, arg1)
 
@@ -5205,9 +5205,9 @@ result1 = obj0._prefix_from_ip_int(result0, arg1)
 
 # Chain 645
 import ipaddress
-arg0 = 855
+arg0 = 161
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = 455
+arg1 = ''
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._report_invalid_netmask(result0, arg1)
 
@@ -5215,9 +5215,9 @@ result1 = obj0._report_invalid_netmask(result0, arg1)
 
 # Chain 646
 import ipaddress
-arg0 = 880
+arg0 = -800
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = IPv6Interface('::1/128')
+arg1 = IPv6Interface('::4/128')
 obj0 = ipaddress._IPAddressBase()
 result1 = obj0._split_addr_prefix(result0, arg1)
 
@@ -5225,7 +5225,7 @@ result1 = obj0._split_addr_prefix(result0, arg1)
 
 # Chain 647
 import ipaddress
-arg0 = 56
+arg0 = 4294868992
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__eq__(result0)
@@ -5234,7 +5234,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 648
 import ipaddress
-arg0 = 274
+arg0 = -887
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__add__(result0)
@@ -5243,7 +5243,7 @@ result1 = obj0.__add__(result0)
 
 # Chain 649
 import ipaddress
-arg0 = 622
+arg0 = 4294868992
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseAddress()
 result1 = obj0.__sub__(result0)
@@ -5252,7 +5252,7 @@ result1 = obj0.__sub__(result0)
 
 # Chain 650
 import ipaddress
-arg0 = 841
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.__getitem__(result0)
@@ -5261,7 +5261,7 @@ result1 = obj0.__getitem__(result0)
 
 # Chain 651
 import ipaddress
-arg0 = -791
+arg0 = -918
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.subnets(result0)
@@ -5270,7 +5270,7 @@ result1 = obj0.subnets(result0)
 
 # Chain 652
 import ipaddress
-arg0 = -752
+arg0 = 379
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.subnets(result0)
@@ -5279,7 +5279,7 @@ result1 = obj0.subnets(result0)
 
 # Chain 653
 import ipaddress
-arg0 = 879
+arg0 = 0
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.supernet(result0)
@@ -5288,7 +5288,7 @@ result1 = obj0.supernet(result0)
 
 # Chain 654
 import ipaddress
-arg0 = 350
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseNetwork()
 result1 = obj0.supernet(result0)
@@ -5297,9 +5297,9 @@ result1 = obj0.supernet(result0)
 
 # Chain 655
 import ipaddress
-arg0 = 501
+arg0 = 189
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = 'gN\x0b]E\x0b'
+arg1 = 32
 obj0 = ipaddress._BaseV4()
 result1 = obj0._make_netmask(result0, arg1)
 
@@ -5307,9 +5307,9 @@ result1 = obj0._make_netmask(result0, arg1)
 
 # Chain 656
 import ipaddress
-arg0 = 558
+arg0 = -567
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = 224
+arg1 = -851
 obj0 = ipaddress._BaseV4()
 result1 = obj0._string_from_ip_int(result0, arg1)
 
@@ -5317,7 +5317,7 @@ result1 = obj0._string_from_ip_int(result0, arg1)
 
 # Chain 657
 import ipaddress
-arg0 = -460
+arg0 = 292
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Address()
 result1 = obj0.__init__(result0)
@@ -5326,7 +5326,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 658
 import ipaddress
-arg0 = 669
+arg0 = 0
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__init__(result0)
@@ -5335,7 +5335,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 659
 import ipaddress
-arg0 = -19
+arg0 = -848
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Interface()
 result1 = obj0.__eq__(result0)
@@ -5344,7 +5344,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 660
 import ipaddress
-arg0 = -649
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv4Network()
 result1 = obj0.__init__(result0)
@@ -5353,9 +5353,9 @@ result1 = obj0.__init__(result0)
 
 # Chain 661
 import ipaddress
-arg0 = -526
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
-arg1 = '\nmV*qM\rowVkeX\taL)G] :J '
+arg1 = 128
 obj0 = ipaddress._BaseV6()
 result1 = obj0._make_netmask(result0, arg1)
 
@@ -5363,7 +5363,7 @@ result1 = obj0._make_netmask(result0, arg1)
 
 # Chain 662
 import ipaddress
-arg0 = -737
+arg0 = -105
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress._BaseV6()
 result1 = obj0._string_from_ip_int(result0)
@@ -5372,7 +5372,7 @@ result1 = obj0._string_from_ip_int(result0)
 
 # Chain 663
 import ipaddress
-arg0 = 1000
+arg0 = 612
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__init__(result0)
@@ -5381,7 +5381,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 664
 import ipaddress
-arg0 = 700
+arg0 = 98303
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Address()
 result1 = obj0.__eq__(result0)
@@ -5390,7 +5390,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 665
 import ipaddress
-arg0 = -105
+arg0 = 202
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__init__(result0)
@@ -5399,7 +5399,7 @@ result1 = obj0.__init__(result0)
 
 # Chain 666
 import ipaddress
-arg0 = -112
+arg0 = 4294967040
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Interface()
 result1 = obj0.__eq__(result0)
@@ -5408,7 +5408,7 @@ result1 = obj0.__eq__(result0)
 
 # Chain 667
 import ipaddress
-arg0 = 112
+arg0 = 4294967040
 result0 = ipaddress._count_righthand_zero_bits(arg0, fuzz_input)
 obj0 = ipaddress.IPv6Network()
 result1 = obj0.__init__(result0)
@@ -5434,7 +5434,7 @@ result0 = obj1.supernet(obj0)
 # Chain 670
 import ipaddress
 obj0 = ipaddress.IPv4Address(fuzz_input)
-arg0 = IPv4Address('0.0.0.5')
+arg0 = IPv4Address('0.0.0.2')
 result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -5442,7 +5442,7 @@ result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 671
 import ipaddress
 obj0 = ipaddress.IPv4Address(fuzz_input)
-arg0 = IPv4Address('0.0.0.4')
+arg0 = IPv4Address('0.0.0.0')
 result0 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -5617,7 +5617,7 @@ result0 = obj1.supernet(obj0)
 # Chain 694
 import ipaddress
 obj0 = ipaddress.IPv4Address(fuzz_input)
-arg0 = IPv4Address('0.0.0.0')
+arg0 = IPv4Address('0.0.0.3')
 result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -5800,7 +5800,7 @@ result0 = obj1.supernet(obj0)
 # Chain 718
 import ipaddress
 obj0 = ipaddress.IPv4Address(fuzz_input)
-arg0 = IPv4Address('0.0.0.5')
+arg0 = IPv4Address('0.0.0.2')
 result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -5808,7 +5808,7 @@ result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 719
 import ipaddress
 obj0 = ipaddress.IPv4Address(fuzz_input)
-arg0 = IPv4Address('0.0.0.5')
+arg0 = IPv4Address('1.1.1.0')
 result0 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -5983,7 +5983,7 @@ result0 = obj1.supernet(obj0)
 # Chain 742
 import ipaddress
 obj0 = ipaddress.IPv4Address(fuzz_input)
-arg0 = IPv4Address('0.0.0.2')
+arg0 = IPv4Address('0.0.0.1')
 result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -5991,7 +5991,7 @@ result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 743
 import ipaddress
 obj0 = ipaddress.IPv4Address(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
+arg0 = IPv4Address('1.1.1.0')
 result0 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -6187,7 +6187,7 @@ result0 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 769
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv6Interface('::3/128')
+arg0 = 2
 obj1 = ipaddress._IPAddressBase()
 result0 = obj1._split_addr_prefix(fuzz_input, arg0)
 
@@ -6296,7 +6296,7 @@ result0 = obj0.__str__()
 # Chain 783
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv4Network('0.0.0.1/32')
+arg0 = IPv6Interface('::5/128')
 result0 = obj0.__eq__(arg0)
 
 ===
@@ -6304,7 +6304,7 @@ result0 = obj0.__eq__(arg0)
 # Chain 784
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv4Network('0.0.0.3/32')
+arg0 = IPv4Address('0.0.0.1')
 result0 = obj0.__lt__(arg0)
 
 ===
@@ -6384,7 +6384,7 @@ result0 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 795
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv6Interface('::5/128')
+arg0 = IPv6Interface('::3/128')
 obj1 = ipaddress._IPAddressBase()
 result0 = obj1._split_addr_prefix(fuzz_input, arg0)
 
@@ -6493,51 +6493,51 @@ result0 = obj0.__str__()
 # Chain 809
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv4Network('0.0.0.5/32')
-result0 = obj0.__lt__(arg0)
+arg0 = IPv6Interface('::3/128')
+result0 = obj0.__eq__(arg0)
 
 ===
 
 # Chain 810
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = obj0.__hash__()
+arg0 = IPv4Address('0.0.0.1')
+result0 = obj0.__lt__(arg0)
 
 ===
 
 # Chain 811
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = obj0.ip()
+result0 = obj0.__hash__()
 
 ===
 
 # Chain 812
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = obj0.with_prefixlen()
+result0 = obj0.ip()
 
 ===
 
 # Chain 813
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = obj0.with_netmask()
+result0 = obj0.with_prefixlen()
 
 ===
 
 # Chain 814
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = obj0.with_hostmask()
+result0 = obj0.with_netmask()
 
 ===
 
 # Chain 815
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result0 = obj1.subnets(obj0)
+result0 = obj0.with_hostmask()
 
 ===
 
@@ -6545,45 +6545,45 @@ result0 = obj1.subnets(obj0)
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress._BaseNetwork()
-result0 = obj1.supernet(obj0)
+result0 = obj1.subnets(obj0)
 
 ===
 
 # Chain 817
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = ipaddress.ip_interface(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result0 = obj1.supernet(obj0)
 
 ===
 
 # Chain 818
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = ipaddress._split_optional_netmask(fuzz_input)
+result0 = ipaddress.ip_interface(fuzz_input)
 
 ===
 
 # Chain 819
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = ipaddress.get_mixed_type_key(fuzz_input)
+result0 = ipaddress._split_optional_netmask(fuzz_input)
 
 ===
 
 # Chain 820
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv6Interface('::1/128')
-obj1 = ipaddress._IPAddressBase()
-result0 = obj1._split_addr_prefix(fuzz_input, arg0)
+result0 = ipaddress.get_mixed_type_key(fuzz_input)
 
 ===
 
 # Chain 821
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-obj1 = ipaddress._BaseAddress()
-result0 = obj1.__eq__(fuzz_input)
+arg0 = '::1%scope'
+obj1 = ipaddress._IPAddressBase()
+result0 = obj1._split_addr_prefix(fuzz_input, arg0)
 
 ===
 
@@ -6591,14 +6591,14 @@ result0 = obj1.__eq__(fuzz_input)
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress._BaseAddress()
-result0 = obj1.__lt__(fuzz_input)
+result0 = obj1.__eq__(fuzz_input)
 
 ===
 
 # Chain 823
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
+obj1 = ipaddress._BaseAddress()
 result0 = obj1.__lt__(fuzz_input)
 
 ===
@@ -6607,7 +6607,7 @@ result0 = obj1.__lt__(fuzz_input)
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress._BaseNetwork()
-result0 = obj1.__eq__(fuzz_input)
+result0 = obj1.__lt__(fuzz_input)
 
 ===
 
@@ -6615,25 +6615,33 @@ result0 = obj1.__eq__(fuzz_input)
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress._BaseNetwork()
-result0 = obj1.__contains__(fuzz_input)
+result0 = obj1.__eq__(fuzz_input)
 
 ===
 
 # Chain 826
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result0 = obj1.__contains__(fuzz_input)
 
 ===
 
 # Chain 827
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-result0 = obj0.__lt__(fuzz_input)
+result0 = obj0.__eq__(fuzz_input)
 
 ===
 
 # Chain 828
+import ipaddress
+obj0 = ipaddress.IPv4Interface(fuzz_input)
+result0 = obj0.__lt__(fuzz_input)
+
+===
+
+# Chain 829
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress.IPv6Address()
@@ -6641,7 +6649,7 @@ result0 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 829
+# Chain 830
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress.IPv6Interface()
@@ -6649,7 +6657,7 @@ result0 = obj1.__init__(fuzz_input)
 
 ===
 
-# Chain 830
+# Chain 831
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress.IPv6Interface()
@@ -6657,7 +6665,7 @@ result0 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 831
+# Chain 832
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 obj1 = ipaddress.IPv6Interface()
@@ -6665,32 +6673,24 @@ result0 = obj1.__lt__(fuzz_input)
 
 ===
 
-# Chain 832
+# Chain 833
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 result0 = obj0.hostmask()
 
 ===
 
-# Chain 833
+# Chain 834
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
 result0 = obj0.__str__()
 
 ===
 
-# Chain 834
-import ipaddress
-obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv4Network('0.0.0.1/32')
-result0 = obj0.__eq__(arg0)
-
-===
-
 # Chain 835
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = IPv4Address('0.0.0.1')
 result0 = obj0.__lt__(arg0)
 
 ===
@@ -6770,7 +6770,7 @@ result0 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 846
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv6Interface('::4/128')
+arg0 = 1
 obj1 = ipaddress._IPAddressBase()
 result0 = obj1._split_addr_prefix(fuzz_input, arg0)
 
@@ -6879,7 +6879,7 @@ result0 = obj0.__str__()
 # Chain 860
 import ipaddress
 obj0 = ipaddress.IPv4Interface(fuzz_input)
-arg0 = IPv4Network('0.0.0.5/32')
+arg0 = IPv4Address('0.0.0.1')
 result0 = obj0.__lt__(arg0)
 
 ===
@@ -6931,21 +6931,21 @@ result1 = ipaddress.ip_network(arg1, result0)
 
 # Chain 867
 import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = '/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Network('0.0.0.4/32')
-obj1 = IPv4Network('0.0.0.4/32')
+arg1 = '::1'
+obj1 = ipaddress.IPv4Network()
 result1 = obj1.__init__(arg1, result0)
 
 ===
 
 # Chain 868
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 'camelot'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = 675.7800575701197
+arg1 = 2
 obj1 = ipaddress.IPv6Network()
 result1 = obj1.__init__(arg1, result0)
 
@@ -6953,16 +6953,16 @@ result1 = obj1.__init__(arg1, result0)
 
 # Chain 869
 import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = 'bogus'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-result1 = ipaddress.ip_network(fuzz_input)
+result1 = ipaddress.ip_interface(fuzz_input)
 
 ===
 
 # Chain 870
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = '/'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress._split_optional_netmask(fuzz_input)
@@ -6971,45 +6971,25 @@ result1 = ipaddress._split_optional_netmask(fuzz_input)
 
 # Chain 871
 import ipaddress
-arg0 = IPv6Interface('::1/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Address('0.0.0.5')
-result1 = ipaddress.summarize_address_range(fuzz_input, arg1)
-
-===
-
-# Chain 872
-import ipaddress
-arg0 = IPv6Interface('::1/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Address('0.0.0.2')
-result1 = ipaddress.summarize_address_range(arg1, fuzz_input)
-
-===
-
-# Chain 873
-import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = 'google.com'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress.get_mixed_type_key(fuzz_input)
 
 ===
 
-# Chain 874
+# Chain 872
 import ipaddress
 arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv6Interface('::5/128')
+arg1 = '::1%scope'
 obj1 = ipaddress._IPAddressBase()
 result1 = obj1._split_addr_prefix(fuzz_input, arg1)
 
 ===
 
-# Chain 875
+# Chain 873
 import ipaddress
 arg0 = IPv6Interface('::1/128')
 obj0 = ipaddress.IPv4Interface(arg0)
@@ -7019,9 +6999,9 @@ result1 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 876
+# Chain 874
 import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = 'google.com'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress._BaseAddress()
@@ -7029,9 +7009,9 @@ result1 = obj1.__lt__(fuzz_input)
 
 ===
 
-# Chain 877
+# Chain 875
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = 'camelot'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress._BaseNetwork()
@@ -7039,9 +7019,9 @@ result1 = obj1.__lt__(fuzz_input)
 
 ===
 
-# Chain 878
+# Chain 876
 import ipaddress
-arg0 = IPv6Interface('::3/128')
+arg0 = 'bogus'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress._BaseNetwork()
@@ -7049,9 +7029,9 @@ result1 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 879
+# Chain 877
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = IPv6Interface('::1/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress._BaseNetwork()
@@ -7059,79 +7039,7 @@ result1 = obj1.__contains__(fuzz_input)
 
 ===
 
-# Chain 880
-import ipaddress
-arg0 = IPv6Interface('::/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.overlaps(fuzz_input)
-
-===
-
-# Chain 881
-import ipaddress
-arg0 = IPv6Interface('::2/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.address_exclude(fuzz_input)
-
-===
-
-# Chain 882
-import ipaddress
-arg0 = IPv6Interface('::4/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.compare_networks(fuzz_input)
-
-===
-
-# Chain 883
-import ipaddress
-arg0 = IPv6Interface('::4/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv6Network('::/128')
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1._is_subnet_of(fuzz_input, arg1)
-
-===
-
-# Chain 884
-import ipaddress
-arg0 = IPv6Interface('::3/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv6Network('::1/128')
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1._is_subnet_of(arg1, fuzz_input)
-
-===
-
-# Chain 885
-import ipaddress
-arg0 = IPv6Interface('::4/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.subnet_of(fuzz_input)
-
-===
-
-# Chain 886
-import ipaddress
-arg0 = IPv6Interface('::3/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.supernet_of(fuzz_input)
-
-===
-
-# Chain 887
+# Chain 878
 import ipaddress
 arg0 = IPv6Interface('::1/128')
 obj0 = ipaddress.IPv4Interface(arg0)
@@ -7140,19 +7048,9 @@ result1 = obj0.__lt__(fuzz_input)
 
 ===
 
-# Chain 888
+# Chain 879
 import ipaddress
-arg0 = IPv6Interface('::2/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress.IPv4Network()
-result1 = obj1.__init__(fuzz_input)
-
-===
-
-# Chain 889
-import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress.IPv6Address()
@@ -7160,29 +7058,131 @@ result1 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 890
+# Chain 880
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = 'bogus'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = IPv6Interface('::4/128')
+obj1 = ipaddress.IPv6Interface()
+result1 = obj1.__init__(fuzz_input)
+
+===
+
+# Chain 881
+import ipaddress
+arg0 = '10/8'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress.IPv6Interface()
 result1 = obj1.__eq__(fuzz_input)
+
+===
+
+# Chain 882
+import ipaddress
+arg0 = 'camelot'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress.IPv6Interface()
+result1 = obj1.__lt__(fuzz_input)
+
+===
+
+# Chain 883
+import ipaddress
+arg0 = IPv6Interface('::1/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+arg1 = IPv4Address('1.1.1.1')
+result1 = ipaddress.summarize_address_range(fuzz_input, arg1)
+
+===
+
+# Chain 884
+import ipaddress
+arg0 = IPv6Interface('::5/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+arg1 = IPv4Address('1.1.1.0')
+result1 = ipaddress.summarize_address_range(arg1, fuzz_input)
+
+===
+
+# Chain 885
+import ipaddress
+arg0 = '/'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.address_exclude(fuzz_input)
+
+===
+
+# Chain 886
+import ipaddress
+arg0 = IPv6Interface('::3/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress.IPv4Address()
+result1 = obj1.__init__(fuzz_input)
+
+===
+
+# Chain 887
+import ipaddress
+arg0 = 1
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.compare_networks(fuzz_input)
+
+===
+
+# Chain 888
+import ipaddress
+arg0 = IPv6Interface('::5/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+arg1 = IPv4Network('10.1.1.0/24')
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1._is_subnet_of(fuzz_input, arg1)
+
+===
+
+# Chain 889
+import ipaddress
+arg0 = '10/8'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+arg1 = IPv6Network('::1/128')
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1._is_subnet_of(arg1, fuzz_input)
+
+===
+
+# Chain 890
+import ipaddress
+arg0 = 'camelot'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.subnet_of(fuzz_input)
 
 ===
 
 # Chain 891
 import ipaddress
-arg0 = IPv6Interface('::2/128')
+arg0 = 'camelot'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = IPv6Interface('::2/128')
-result1 = obj1.__lt__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.supernet_of(fuzz_input)
 
 ===
 
 # Chain 892
 import ipaddress
-arg0 = IPv6Interface('::3/128')
+arg0 = 'camelot'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress.IPv6Address()
@@ -7192,7 +7192,7 @@ result1 = obj1.__init__(fuzz_input)
 
 # Chain 893
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = IPv6Interface('::1/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress._find_address_range(fuzz_input)
@@ -7201,7 +7201,7 @@ result1 = ipaddress._find_address_range(fuzz_input)
 
 # Chain 894
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 2
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress._collapse_addresses_internal(fuzz_input)
@@ -7210,7 +7210,7 @@ result1 = ipaddress._collapse_addresses_internal(fuzz_input)
 
 # Chain 895
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = 2
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress.collapse_addresses(fuzz_input)
@@ -7219,10 +7219,10 @@ result1 = ipaddress.collapse_addresses(fuzz_input)
 
 # Chain 896
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = '/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = [False, False, True, True, False]
+arg1 = [697.7317177118337, 101.13887211787369]
 obj1 = ipaddress._BaseV6()
 result1 = obj1._compress_hextets(fuzz_input, arg1)
 
@@ -7230,36 +7230,36 @@ result1 = obj1._compress_hextets(fuzz_input, arg1)
 
 # Chain 897
 import ipaddress
-arg0 = IPv6Interface('::2/128')
+arg0 = 1
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-result1 = ipaddress.ip_interface(fuzz_input)
+result1 = ipaddress.ip_network(fuzz_input)
 
 ===
 
 # Chain 898
 import ipaddress
-arg0 = IPv6Interface('::2/128')
+arg0 = '/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = IPv6Interface('::2/128')
-result1 = obj1.__init__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.overlaps(fuzz_input)
 
 ===
 
 # Chain 899
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = '/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress.IPv4Address()
+obj1 = ipaddress.IPv4Network()
 result1 = obj1.__init__(fuzz_input)
 
 ===
 
 # Chain 900
 import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = 'google.com'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.hostmask()
@@ -7268,7 +7268,7 @@ result1 = obj0.hostmask()
 
 # Chain 901
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.__str__()
@@ -7277,17 +7277,17 @@ result1 = obj0.__str__()
 
 # Chain 902
 import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = IPv6Interface('::2/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Network('0.0.0.5/32')
+arg1 = IPv4Address('0.0.0.1')
 result1 = obj0.__lt__(arg1)
 
 ===
 
 # Chain 903
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = IPv6Interface('::3/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.__hash__()
@@ -7296,7 +7296,7 @@ result1 = obj0.__hash__()
 
 # Chain 904
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = '10/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.ip()
@@ -7305,7 +7305,7 @@ result1 = obj0.ip()
 
 # Chain 905
 import ipaddress
-arg0 = IPv6Interface('::3/128')
+arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.with_prefixlen()
@@ -7323,7 +7323,7 @@ result1 = obj0.with_netmask()
 
 # Chain 907
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = IPv6Interface('::3/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.with_hostmask()
@@ -7332,31 +7332,31 @@ result1 = obj0.with_hostmask()
 
 # Chain 908
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = 2
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Network('0.0.0.4/32')
+arg1 = '1.1.1.1'
 result1 = ipaddress.ip_network(arg1, result0)
 
 ===
 
 # Chain 909
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = IPv6Interface('::/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Network('0.0.0.4/32')
-obj1 = IPv4Network('0.0.0.4/32')
+arg1 = IPv4Network('0.0.0.3/32')
+obj1 = IPv4Network('0.0.0.3/32')
 result1 = obj1.__init__(arg1, result0)
 
 ===
 
 # Chain 910
 import ipaddress
-arg0 = IPv6Interface('::3/128')
+arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = 89.70345884626136
+arg1 = 2
 obj1 = ipaddress.IPv6Network()
 result1 = obj1.__init__(arg1, result0)
 
@@ -7364,16 +7364,16 @@ result1 = obj1.__init__(arg1, result0)
 
 # Chain 911
 import ipaddress
-arg0 = IPv6Interface('::3/128')
+arg0 = IPv6Interface('::2/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-result1 = ipaddress.ip_network(fuzz_input)
+result1 = ipaddress.ip_interface(fuzz_input)
 
 ===
 
 # Chain 912
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = '/'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress._split_optional_netmask(fuzz_input)
@@ -7382,47 +7382,27 @@ result1 = ipaddress._split_optional_netmask(fuzz_input)
 
 # Chain 913
 import ipaddress
-arg0 = IPv6Interface('::2/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Address('0.0.0.3')
-result1 = ipaddress.summarize_address_range(fuzz_input, arg1)
-
-===
-
-# Chain 914
-import ipaddress
-arg0 = IPv6Interface('::4/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Address('0.0.0.2')
-result1 = ipaddress.summarize_address_range(arg1, fuzz_input)
-
-===
-
-# Chain 915
-import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 1
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress.get_mixed_type_key(fuzz_input)
 
 ===
 
-# Chain 916
+# Chain 914
 import ipaddress
-arg0 = IPv6Interface('::3/128')
+arg0 = '10/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv6Interface('::3/128')
+arg1 = IPv6Interface('::2/128')
 obj1 = ipaddress._IPAddressBase()
 result1 = obj1._split_addr_prefix(fuzz_input, arg1)
 
 ===
 
-# Chain 917
+# Chain 915
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 'google.com'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress._BaseAddress()
@@ -7430,9 +7410,9 @@ result1 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 918
+# Chain 916
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = '/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress._BaseAddress()
@@ -7440,13 +7420,33 @@ result1 = obj1.__lt__(fuzz_input)
 
 ===
 
-# Chain 919
+# Chain 917
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = IPv6Interface('::4/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress._BaseNetwork()
 result1 = obj1.__lt__(fuzz_input)
+
+===
+
+# Chain 918
+import ipaddress
+arg0 = 1
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.__eq__(fuzz_input)
+
+===
+
+# Chain 919
+import ipaddress
+arg0 = 'bogus'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.__contains__(fuzz_input)
 
 ===
 
@@ -7455,115 +7455,13 @@ import ipaddress
 arg0 = IPv6Interface('::/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.__eq__(fuzz_input)
+result1 = obj0.__lt__(fuzz_input)
 
 ===
 
 # Chain 921
 import ipaddress
-arg0 = IPv6Interface('::2/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.__contains__(fuzz_input)
-
-===
-
-# Chain 922
-import ipaddress
-arg0 = IPv6Interface('::1/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.overlaps(fuzz_input)
-
-===
-
-# Chain 923
-import ipaddress
-arg0 = IPv6Interface('::2/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.address_exclude(fuzz_input)
-
-===
-
-# Chain 924
-import ipaddress
-arg0 = IPv6Interface('::5/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.compare_networks(fuzz_input)
-
-===
-
-# Chain 925
-import ipaddress
-arg0 = IPv6Interface('::5/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv6Network('::/128')
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1._is_subnet_of(fuzz_input, arg1)
-
-===
-
-# Chain 926
-import ipaddress
-arg0 = IPv6Interface('::5/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv6Network('::3/128')
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1._is_subnet_of(arg1, fuzz_input)
-
-===
-
-# Chain 927
-import ipaddress
-arg0 = IPv6Interface('::1/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.subnet_of(fuzz_input)
-
-===
-
-# Chain 928
-import ipaddress
-arg0 = IPv6Interface('::3/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress._BaseNetwork()
-result1 = obj1.supernet_of(fuzz_input)
-
-===
-
-# Chain 929
-import ipaddress
-arg0 = IPv6Interface('::5/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-result1 = obj0.__lt__(fuzz_input)
-
-===
-
-# Chain 930
-import ipaddress
-arg0 = IPv6Interface('::/128')
-obj0 = ipaddress.IPv4Interface(arg0)
-result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress.IPv4Network()
-result1 = obj1.__init__(fuzz_input)
-
-===
-
-# Chain 931
-import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = IPv6Interface('::4/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress.IPv6Address()
@@ -7571,7 +7469,17 @@ result1 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 932
+# Chain 922
+import ipaddress
+arg0 = '/8'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress.IPv6Interface()
+result1 = obj1.__init__(fuzz_input)
+
+===
+
+# Chain 923
 import ipaddress
 arg0 = IPv6Interface('::1/128')
 obj0 = ipaddress.IPv4Interface(arg0)
@@ -7581,19 +7489,111 @@ result1 = obj1.__eq__(fuzz_input)
 
 ===
 
-# Chain 933
+# Chain 924
+import ipaddress
+arg0 = 1
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress.IPv6Interface()
+result1 = obj1.__lt__(fuzz_input)
+
+===
+
+# Chain 925
 import ipaddress
 arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = IPv6Interface('::5/128')
-result1 = obj1.__lt__(fuzz_input)
+arg1 = IPv4Address('1.1.1.4')
+result1 = ipaddress.summarize_address_range(fuzz_input, arg1)
+
+===
+
+# Chain 926
+import ipaddress
+arg0 = IPv6Interface('::4/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+arg1 = IPv4Address('0.0.0.4')
+result1 = ipaddress.summarize_address_range(arg1, fuzz_input)
+
+===
+
+# Chain 927
+import ipaddress
+arg0 = 2
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.address_exclude(fuzz_input)
+
+===
+
+# Chain 928
+import ipaddress
+arg0 = 'camelot'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress.IPv4Address()
+result1 = obj1.__init__(fuzz_input)
+
+===
+
+# Chain 929
+import ipaddress
+arg0 = IPv6Interface('::4/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.compare_networks(fuzz_input)
+
+===
+
+# Chain 930
+import ipaddress
+arg0 = IPv6Interface('::5/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+arg1 = IPv6Network('::1/128')
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1._is_subnet_of(fuzz_input, arg1)
+
+===
+
+# Chain 931
+import ipaddress
+arg0 = IPv6Interface('::/128')
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+arg1 = IPv4Network('10.1.1.5/32')
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1._is_subnet_of(arg1, fuzz_input)
+
+===
+
+# Chain 932
+import ipaddress
+arg0 = '10/8'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.subnet_of(fuzz_input)
+
+===
+
+# Chain 933
+import ipaddress
+arg0 = 'camelot'
+obj0 = ipaddress.IPv4Interface(arg0)
+result0 = obj0.__eq__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.supernet_of(fuzz_input)
 
 ===
 
 # Chain 934
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = IPv6Interface('::2/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 obj1 = ipaddress.IPv6Address()
@@ -7612,7 +7612,7 @@ result1 = ipaddress._find_address_range(fuzz_input)
 
 # Chain 936
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = 1
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress._collapse_addresses_internal(fuzz_input)
@@ -7621,7 +7621,7 @@ result1 = ipaddress._collapse_addresses_internal(fuzz_input)
 
 # Chain 937
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = IPv6Interface('::3/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = ipaddress.collapse_addresses(fuzz_input)
@@ -7630,10 +7630,10 @@ result1 = ipaddress.collapse_addresses(fuzz_input)
 
 # Chain 938
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = '/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = [True]
+arg1 = [454.41397177842805, 643.5073067704695, 283.6338788130929]
 obj1 = ipaddress._BaseV6()
 result1 = obj1._compress_hextets(fuzz_input, arg1)
 
@@ -7641,36 +7641,36 @@ result1 = obj1._compress_hextets(fuzz_input, arg1)
 
 # Chain 939
 import ipaddress
-arg0 = IPv6Interface('::2/128')
+arg0 = 'camelot'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-result1 = ipaddress.ip_interface(fuzz_input)
+result1 = ipaddress.ip_network(fuzz_input)
 
 ===
 
 # Chain 940
 import ipaddress
-arg0 = IPv6Interface('::5/128')
+arg0 = IPv6Interface('::3/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = IPv6Interface('::5/128')
-result1 = obj1.__init__(fuzz_input)
+obj1 = ipaddress._BaseNetwork()
+result1 = obj1.overlaps(fuzz_input)
 
 ===
 
 # Chain 941
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = 2
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-obj1 = ipaddress.IPv4Address()
+obj1 = ipaddress.IPv4Network()
 result1 = obj1.__init__(fuzz_input)
 
 ===
 
 # Chain 942
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = '10/8'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.hostmask()
@@ -7679,7 +7679,7 @@ result1 = obj0.hostmask()
 
 # Chain 943
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 'camelot'
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.__str__()
@@ -7688,17 +7688,17 @@ result1 = obj0.__str__()
 
 # Chain 944
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = 2
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
-arg1 = IPv4Network('0.0.0.1/32')
+arg1 = IPv6Interface('::5/128')
 result1 = obj0.__lt__(arg1)
 
 ===
 
 # Chain 945
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = IPv6Interface('::3/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.__hash__()
@@ -7707,7 +7707,7 @@ result1 = obj0.__hash__()
 
 # Chain 946
 import ipaddress
-arg0 = IPv6Interface('::/128')
+arg0 = IPv6Interface('::1/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.ip()
@@ -7716,7 +7716,7 @@ result1 = obj0.ip()
 
 # Chain 947
 import ipaddress
-arg0 = IPv6Interface('::4/128')
+arg0 = IPv6Interface('::2/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.with_prefixlen()
@@ -7725,7 +7725,7 @@ result1 = obj0.with_prefixlen()
 
 # Chain 948
 import ipaddress
-arg0 = IPv6Interface('::1/128')
+arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.with_netmask()
@@ -7734,7 +7734,7 @@ result1 = obj0.with_netmask()
 
 # Chain 949
 import ipaddress
-arg0 = IPv6Interface('::2/128')
+arg0 = IPv6Interface('::5/128')
 obj0 = ipaddress.IPv4Interface(arg0)
 result0 = obj0.__eq__(fuzz_input)
 result1 = obj0.with_hostmask()
@@ -7774,7 +7774,7 @@ result0 = ipaddress._split_optional_netmask(fuzz_input)
 # Chain 954
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv4Address('0.0.0.4')
+arg0 = IPv4Address('1.1.1.1')
 result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -7782,7 +7782,7 @@ result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 955
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
+arg0 = IPv4Address('1.1.1.0')
 result0 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -7797,7 +7797,7 @@ result0 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 957
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv6Interface('::3/128')
+arg0 = 1
 obj1 = ipaddress._IPAddressBase()
 result0 = obj1._split_addr_prefix(fuzz_input, arg0)
 
@@ -7870,7 +7870,7 @@ result0 = obj1.compare_networks(fuzz_input)
 # Chain 966
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv6Network('::3/128')
+arg0 = IPv6Network('::4/128')
 obj1 = ipaddress._BaseNetwork()
 result0 = obj1._is_subnet_of(fuzz_input, arg0)
 
@@ -7879,7 +7879,7 @@ result0 = obj1._is_subnet_of(fuzz_input, arg0)
 # Chain 967
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv6Network('::5/128')
+arg0 = IPv6Network('::4/128')
 obj1 = ipaddress._BaseNetwork()
 result0 = obj1._is_subnet_of(arg0, fuzz_input)
 
@@ -7981,7 +7981,7 @@ result0 = ipaddress._split_optional_netmask(fuzz_input)
 # Chain 980
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv4Address('0.0.0.5')
+arg0 = IPv4Address('0.0.0.2')
 result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 
 ===
@@ -7989,7 +7989,7 @@ result0 = ipaddress.summarize_address_range(fuzz_input, arg0)
 # Chain 981
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv4Address('0.0.0.3')
+arg0 = IPv4Address('1.1.1.0')
 result0 = ipaddress.summarize_address_range(arg0, fuzz_input)
 
 ===
@@ -8004,7 +8004,7 @@ result0 = ipaddress.get_mixed_type_key(fuzz_input)
 # Chain 983
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv6Interface('::1/128')
+arg0 = '::1%scope'
 obj1 = ipaddress._IPAddressBase()
 result0 = obj1._split_addr_prefix(fuzz_input, arg0)
 
@@ -8077,7 +8077,7 @@ result0 = obj1.compare_networks(fuzz_input)
 # Chain 992
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv6Network('::5/128')
+arg0 = IPv4Network('10.1.1.0/26')
 obj1 = ipaddress._BaseNetwork()
 result0 = obj1._is_subnet_of(fuzz_input, arg0)
 
@@ -8086,7 +8086,7 @@ result0 = obj1._is_subnet_of(fuzz_input, arg0)
 # Chain 993
 import ipaddress
 obj0 = ipaddress.IPv4Network(fuzz_input)
-arg0 = IPv6Network('::2/128')
+arg0 = IPv4Network('10.1.1.0/24')
 obj1 = ipaddress._BaseNetwork()
 result0 = obj1._is_subnet_of(arg0, fuzz_input)
 

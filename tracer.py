@@ -1,11 +1,14 @@
 import inspect
 import sys
+import copy
+import pickle
 from collections import defaultdict
 from pathlib import Path
 
 
 input_types = defaultdict(lambda: defaultdict(set))
 output_types = defaultdict(set)
+arg_values = defaultdict(lambda: defaultdict(list))
 
 
 
@@ -30,6 +33,22 @@ def tracer(frame, event, arg):
             input_types[api_id][parameter].add(
                 type(value).__name__
             )
+
+            values = arg_values[api_id][parameter]
+            if len(values) < 8:
+                try:
+                    saved = copy.deepcopy(value)
+                    module = saved.__class__.__module__
+                    if module not in ("builtins", Path(api_id[0]).stem):
+                        continue
+                    if module == "builtins" and not isinstance(
+                        saved, (str, int, float, bool, bytes, type(None))
+                    ):
+                        continue
+                    pickle.loads(pickle.dumps(saved))
+                    values.append(saved)
+                except Exception:
+                    pass
 
     elif event == "return":
         if isinstance(arg, tuple):

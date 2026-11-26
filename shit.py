@@ -129,7 +129,8 @@ def findTypeAPI(filePath, test=None) :
 
     inputs = current_namespace["input_types"]
     outputs = current_namespace["output_types"]
-    return inputs, outputs
+    values = current_namespace["arg_values"]
+    return inputs, outputs, values
 
 
 def phase1(code,filePath) : 
@@ -147,7 +148,7 @@ def phase1(code,filePath) :
     # we use test file of that features to find the type of input and output
     #  Run this file with powerful of python tracer to get the type 
 
-    inputType,outputType = findTypeAPI(filePath)
+    inputType, outputType, argValues = findTypeAPI(filePath)
 
     apis = result["functions"] + [
         method
@@ -157,6 +158,7 @@ def phase1(code,filePath) :
     for api in apis:
         api["input_types"] = dict(inputType.get(api["api_id"], {}))
         api["output_types"] = outputType.get(api["api_id"], set())
+        api["input_values"] = dict(argValues.get(api["api_id"], {}))
 
     # Typed API description
     return result 
@@ -551,7 +553,14 @@ def  findEmtpyArgs(chains) :
         constructor_failed = False
 
         for arg in unresolveArgs:
-            input_types = [x for x in all_apis if x["api_id"] == tuple(arg["api_id"])][0]["input_types"].get(arg["arg_name"], set())
+            api_desc = next(x for x in all_apis if x["api_id"] == tuple(arg["api_id"]))
+            observed = api_desc.get("input_values", {}).get(arg["arg_name"], [])
+            if observed and random.random() < 0.5:
+                arg["value"] = random.choice(observed)
+                arg["input_type"] = arg["value"].__class__.__name__
+                continue
+
+            input_types = api_desc["input_types"].get(arg["arg_name"], set())
 
             library_classes = {cl["name"] for cl in apidesc["classes"]}
             if input_types:
